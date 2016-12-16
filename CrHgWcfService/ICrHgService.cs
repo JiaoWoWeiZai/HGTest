@@ -38,7 +38,16 @@ namespace CrHgWcfService
     [ServiceContract]
     public interface ICrHgService
     {
-        
+
+        [OperationContract]
+        string GetPersonInfoByIdNo(string idNum, string name);
+
+        [OperationContract]
+        string Login(string username, string password);
+
+        [OperationContract]
+        int InitNewInterface();
+
         [OperationContract]
         int NewInterface();
 

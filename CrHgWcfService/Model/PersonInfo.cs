@@ -6,66 +6,66 @@ namespace CrHgWcfService.Model
     {
         public PersonInfo(int interfaceId)
         {
-            var count = HgEngine.getrowcount(interfaceId);
+            var count = HgEngine.GetRowCount(interfaceId);
             HgEngine.setresultset(interfaceId, "PersonInfo");
 
             var pvalue = "";
-            HgEngine.getbyname(interfaceId, "name", ref pvalue);
-            name = pvalue;
-            HgEngine.getbyname(interfaceId, "indi_id", ref pvalue);
-            indi_id = pvalue;
-            HgEngine.getbyname(interfaceId, "sex", ref pvalue);
-            sex = pvalue;
-            HgEngine.getbyname(interfaceId, "pers_identity", ref pvalue);
-            pers_identity = pvalue;
-            HgEngine.getbyname(interfaceId, "pers_status", ref pvalue);
-            pers_status = pvalue;
-            HgEngine.getbyname(interfaceId, "office_grade", ref pvalue);
-            office_grade = pvalue;
-            HgEngine.getbyname(interfaceId, "idcard", ref pvalue);
-            idcard = pvalue;
-            HgEngine.getbyname(interfaceId, "telephone", ref pvalue);
-            telephone = pvalue;
-            HgEngine.getbyname(interfaceId, "birthday", ref pvalue);
-            birthday = pvalue;
-            HgEngine.getbyname(interfaceId, "post_code", ref pvalue);
-            post_code = pvalue;
-            HgEngine.getbyname(interfaceId, "corp_id", ref pvalue);
-            corp_id = pvalue;
-            HgEngine.getbyname(interfaceId, "corp_name", ref pvalue);
-            corp_name = pvalue;
-            HgEngine.getbyname(interfaceId, "last_balance", ref pvalue);
-            last_balance = pvalue;
+            HgEngine.GetByName(interfaceId, "name", ref pvalue);
+            Name = pvalue;
+            HgEngine.GetByName(interfaceId, "indi_id", ref pvalue);
+            IndiId = pvalue;
+            HgEngine.GetByName(interfaceId, "sex", ref pvalue);
+            Sex = pvalue;
+            HgEngine.GetByName(interfaceId, "pers_identity", ref pvalue);
+            PersIdentity = pvalue;
+            HgEngine.GetByName(interfaceId, "pers_status", ref pvalue);
+            PersStatus = pvalue;
+            HgEngine.GetByName(interfaceId, "office_grade", ref pvalue);
+            OfficeGrade = pvalue;
+            HgEngine.GetByName(interfaceId, "idcard", ref pvalue);
+            Idcard = pvalue;
+            HgEngine.GetByName(interfaceId, "telephone", ref pvalue);
+            Telephone = pvalue;
+            HgEngine.GetByName(interfaceId, "birthday", ref pvalue);
+            Birthday = pvalue;
+            HgEngine.GetByName(interfaceId, "post_code", ref pvalue);
+            PostCode = pvalue;
+            HgEngine.GetByName(interfaceId, "corp_id", ref pvalue);
+            CorpId = pvalue;
+            HgEngine.GetByName(interfaceId, "corp_name", ref pvalue);
+            CorpName = pvalue;
+            HgEngine.GetByName(interfaceId, "last_balance", ref pvalue);
+            LastBalance = pvalue;
 
 
             if (count != 1) return;
             HgEngine.setresultset(interfaceId, "freezeinfo");
-            HgEngine.getbyname(interfaceId, "fund_id", ref pvalue);
-            fund_id = pvalue;
-            HgEngine.getbyname(interfaceId, "fund_name", ref pvalue);
-            fund_name = pvalue;
-            HgEngine.getbyname(interfaceId, "indi_freeze_status", ref pvalue);
-            indi_freeze_status = pvalue;
+            HgEngine.GetByName(interfaceId, "fund_id", ref pvalue);
+            FundId = pvalue;
+            HgEngine.GetByName(interfaceId, "fund_name", ref pvalue);
+            FundName = pvalue;
+            HgEngine.GetByName(interfaceId, "indi_freeze_status", ref pvalue);
+            IndiFreezeStatus = pvalue;
             HgEngine.setresultset(interfaceId, "clinicapplyinfo");
-            HgEngine.getbyname(interfaceId, "serial_apply", ref pvalue);
-            serial_apply = pvalue;
+            HgEngine.GetByName(interfaceId, "serial_apply", ref pvalue);
+            SerialApply = pvalue;
         }
-        public string indi_id { get; set; }
-        public string name { get; set; }
-        public string sex { get; set; }
-        public string pers_identity { get; set; }
-        public string pers_status { get; set; }
-        public string office_grade { get; set; }
-        public string idcard { get; set; }
-        public string telephone { get; set; }
-        public string birthday { get; set; }
-        public string post_code { get; set; }
-        public string corp_id { get; set; }
-        public string corp_name { get; set; }
-        public string last_balance { get; set; }
-        public string fund_id { get; set; }
-        public string fund_name { get; set; }
-        public string indi_freeze_status { get; set; }
-        public string serial_apply { get; set; }
+        public string IndiId { get; set; }
+        public string Name { get; set; }
+        public string Sex { get; set; }
+        public string PersIdentity { get; set; }
+        public string PersStatus { get; set; }
+        public string OfficeGrade { get; set; }
+        public string Idcard { get; set; }
+        public string Telephone { get; set; }
+        public string Birthday { get; set; }
+        public string PostCode { get; set; }
+        public string CorpId { get; set; }
+        public string CorpName { get; set; }
+        public string LastBalance { get; set; }
+        public string FundId { get; set; }
+        public string FundName { get; set; }
+        public string IndiFreezeStatus { get; set; }
+        public string SerialApply { get; set; }
     }
 }
