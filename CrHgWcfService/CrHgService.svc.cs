@@ -34,6 +34,7 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using CrHgWcfService.Common;
+using CrHgWcfService.Model;
 
 namespace CrHgWcfService
 {
@@ -115,10 +116,17 @@ namespace CrHgWcfService
             RunService("0", ref s, new Param("login_id", username), new Param("login_password", password));
             return s;
         }
-        
-        public string GetPersonInfoByIdNo(string idNum, string name)
+
+        /// <summary>
+        /// 通过身份证查询医保病人信息
+        /// </summary>
+        /// <param name="name">姓名</param>
+        /// <param name="idNum">身份证号</param>
+        /// <returns>方法调用结果</returns>
+        public string GetPersonInfoByIdNo(string name, string idNum)
         {
             var s = string.Empty;
+            Login(UserName, PassWord);
             if (!RunService("BIZH131001", ref s, new Param("idcard", idNum), new Param("hospital_id", "006010"), new Param("treatment_type", "110"), new Param("biz_type", "11"), new Param("biz_date", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"))))
                 return s;
             SetResultSet(InterfaceId, "personinfo");
@@ -134,8 +142,21 @@ namespace CrHgWcfService
 
             var nname = string.Empty;
             GetByName(InterfaceId, "name", ref nname);
-            return (name == nname) + "";// ? JsonHelper.Serialize(new PersonInfo(InterfaceId)) : "姓名与身份证号不匹配！";
+            return name == nname ? JsonHelper.Serialize(new PersonInfo(InterfaceId)) : "姓名与身份证号不匹配！";
             ;
+        }
+
+        /// <summary>
+        /// 医保就医登记
+        /// </summary>
+        /// <param name="name">姓名</param>
+        /// <param name="idNum">身份证号</param>
+        /// <param name="preNum">处方号</param>
+        /// <returns>方法调用结果</returns>
+        public string HealthCareMedicalRegistration(string name, string idNum, string preNum)
+        {
+
+            return "方法正在构造,敬请期待！";
         }
 
 

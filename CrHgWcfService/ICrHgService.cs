@@ -40,7 +40,11 @@ namespace CrHgWcfService
     {
 
         [OperationContract]
-        string GetPersonInfoByIdNo(string idNum, string name);
+        string GetPersonInfoByIdNo(string name, string idNum);
+
+        [OperationContract]
+        string HealthCareMedicalRegistration(string name, string idNum, string preNum);
+
 
         [OperationContract]
         string Login(string username, string password);
@@ -76,7 +80,16 @@ namespace CrHgWcfService
         int SetResultSet(int pint, string resultName);
 
         [OperationContract]
+        int RunXml(int print, string xml);
+
+        [OperationContract]
         int GetByName(int pint, string pname,ref string pvalue);
+
+        [OperationContract]
+        int GetXmlStr_t(int print, ref string xml);
+
+        [OperationContract]
+        int GetXmlStr(int print, ref string xml);
 
         [OperationContract]
         int GetByIndex(int pint, int index,ref string pname,ref string pvalue);
@@ -89,6 +102,12 @@ namespace CrHgWcfService
 
         [OperationContract]
         int GetRowCount(int pint);
+
+        [OperationContract]
+        int GetCode(int print, ref string msg);
+
+        [OperationContract]
+        int GeterrType(int print);
 
         [OperationContract]
         int FirstRow(int pint);
@@ -104,6 +123,9 @@ namespace CrHgWcfService
 
         [OperationContract]
         int SetIcCommport(int pinter, int comm);
+
+        [OperationContract]
+        int GetResultNameByIndex(int pinter, int index, ref string resultname);
 
         [OperationContract]
         int SetDebug(int pint, int flag, string direct);

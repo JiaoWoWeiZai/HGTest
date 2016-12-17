@@ -42,13 +42,14 @@ namespace CrHgWcfService.Common
     public static class HgEngine
     {
         private const string Dllname = @"Libraries\\HG_Interface.dll";
+        private const string Dllnamec = @"Libraries\\HG_Interface_center.dll";
 
         /// <summary>
         /// 该函数建立一个新的接口实例，但这个函数没有初始化接口，必须再调用 init 函
         /// 数初始化接口，此函数返回接口指针 p_inter，它将作为其他函数入口参数。 
         /// </summary>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "newinterface", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "newinterface", CallingConvention = CallingConvention.StdCall)]
         //public static extern int newinterface();
         static extern IntPtr newinterface();
         public static int NewInterface()
@@ -66,7 +67,7 @@ namespace CrHgWcfService.Common
         /// <param name="port"></param>
         /// <param name="servlet"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "newinterfacewithinit", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "newinterfacewithinit", CallingConvention = CallingConvention.StdCall)]
         //public static extern int newinterfacewithinit(string addr, int port, string servlet);
         static extern IntPtr newinterfacewithinit(string addr, int port, string servlet);
         public static int NewInterfaceWithInit(string addr, int port, string servlet)
@@ -84,7 +85,7 @@ namespace CrHgWcfService.Common
         /// <param name="port"></param>
         /// <param name="servlet"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "init", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "init", CallingConvention = CallingConvention.StdCall)]
         //public static extern int init(int pint, string addr, int port, string servlet);
         static extern int init(IntPtr pint, string addr, int port, string servlet);
         public static int Init(int pint, string addr, int port, string servlet)
@@ -97,7 +98,7 @@ namespace CrHgWcfService.Common
         /// 从内存中释放接口的实例。 
         /// </summary>
         /// <param name="pint"></param>
-        [DllImport(Dllname, EntryPoint = "destoryinterface", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "destoryinterface", CallingConvention = CallingConvention.StdCall)]
         //public static extern void destoryinterface(int pint);
         static extern void destoryinterface(IntPtr pint);
         public static void DestoryInterface(int pint)
@@ -115,7 +116,7 @@ namespace CrHgWcfService.Common
         /// <param name="pint"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "start", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "start", CallingConvention = CallingConvention.StdCall)]
         //public static extern int start(int pint, string id);
         static extern IntPtr start(IntPtr pint, IntPtr id);
         public static int Start(int pint, string id)
@@ -136,7 +137,7 @@ namespace CrHgWcfService.Common
         /// <param name="pname"></param>
         /// <param name="pvalue"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "put", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "put", CallingConvention = CallingConvention.StdCall)]
         //public static extern int put(int pint, int row, string pname, string pvalue);
         static extern IntPtr put(IntPtr pint, IntPtr row, IntPtr pname, IntPtr pvalue);
         public static int Put(int pint, int row, string pname, string pvalue)
@@ -155,7 +156,7 @@ namespace CrHgWcfService.Common
         /// <param name="pname"></param>
         /// <param name="pvalue"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "putcol", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "putcol", CallingConvention = CallingConvention.StdCall)]
         //public static extern int putcol(int pint, string pname, string pvalue);
         static extern int putcol(IntPtr pint, IntPtr pname, IntPtr pvalue);
         public static int PutCol(int pint, string pname, string pvalue)
@@ -171,7 +172,7 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="pint"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "run", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "run", CallingConvention = CallingConvention.StdCall)]
         //public static extern int run(int pint);
         static extern int run(IntPtr pint);
         public static int Run(int pint)
@@ -195,18 +196,18 @@ namespace CrHgWcfService.Common
         /// <param name="pint"></param>
         /// <param name="resultName"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "setresultset", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "setresultset", CallingConvention = CallingConvention.StdCall)]
         public static extern int setresultset(int pint, string resultName);
 
 
 
-        [DllImport(Dllname, EntryPoint = "runxml", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "runxml", CallingConvention = CallingConvention.StdCall)]
         public static extern int runxml(int pint, string xml);
 
-        [DllImport(Dllname, EntryPoint = "getxmlstr_t", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getxmlstr_t", CallingConvention = CallingConvention.StdCall)]
         public static extern int getxmlstr_t(int pint,ref string xml);
 
-        [DllImport(Dllname, EntryPoint = "getxmlstr", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getxmlstr", CallingConvention = CallingConvention.StdCall)]
         public static extern int getxmlstr(int pint,ref string xml);
 
         /// <summary>
@@ -220,7 +221,7 @@ namespace CrHgWcfService.Common
         /// <param name="pname"></param>
         /// <param name="pvalue"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "getbyname", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getbyname", CallingConvention = CallingConvention.StdCall)]
         //public static extern int getbyname(int pint, string pname,ref string pvalue);
         static extern int getbyname(IntPtr pint, string pname, [MarshalAs(UnmanagedType.LPStr)] StringBuilder pvalue);
         public static int GetByName(int pint, string name, ref string pvalue)
@@ -244,7 +245,7 @@ namespace CrHgWcfService.Common
         /// <param name="pname"></param>
         /// <param name="pvalue"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "getbyindex", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getbyindex", CallingConvention = CallingConvention.StdCall)]
         //public static extern int getbyindex(int pint, int index, string pname,ref string pvalue);
         static extern int getbyindex(IntPtr pint, long index, [MarshalAs(UnmanagedType.LPStr)] StringBuilder pname, [MarshalAs(UnmanagedType.LPStr)] StringBuilder pvalue);
         public static int GetByIndex(int pint, long index, ref string pname, ref string pvalue)
@@ -271,7 +272,7 @@ namespace CrHgWcfService.Common
         /// <param name="pint"></param>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "getmessage", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getmessage", CallingConvention = CallingConvention.StdCall)]
         //public static extern int getmessage(int pint,ref string msg);
         static extern int getmessage(IntPtr pint, [MarshalAs(UnmanagedType.LPStr)] StringBuilder msg);
         public static int GetMessage(int pint, ref string msg)
@@ -293,7 +294,7 @@ namespace CrHgWcfService.Common
         /// <param name="pint"></param>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "getexception", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getexception", CallingConvention = CallingConvention.StdCall)]
         //public static extern int getexception(int pint,ref string msg);
         static extern int getexception(IntPtr pint, [MarshalAs(UnmanagedType.LPStr)] StringBuilder msg);
         public static int GetException(int pint, ref string msg)
@@ -313,7 +314,7 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="pint"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "getrowcount", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getrowcount", CallingConvention = CallingConvention.StdCall)]
         //public static extern int getrowcount(int pint);   
         static extern int getrowcount(IntPtr pint);
         public static int GetRowCount(int pint)
@@ -322,7 +323,7 @@ namespace CrHgWcfService.Common
         }
 
 
-        [DllImport(Dllname, EntryPoint = "getcode", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getcode", CallingConvention = CallingConvention.StdCall)]
         //public static extern int getcode(int pint,ref string msg);
         static extern int getcode(IntPtr pint, [MarshalAs(UnmanagedType.LPStr)] StringBuilder msg);
         public static int GetCode(int pint, ref string msg)
@@ -334,7 +335,7 @@ namespace CrHgWcfService.Common
             return ret;
         }
 
-        [DllImport(Dllname, EntryPoint = "geterrtype", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "geterrtype", CallingConvention = CallingConvention.StdCall)]
         public static extern int geterrtype(int pint);
 
         /// <summary>
@@ -343,7 +344,7 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="pint"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "firstrow", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "firstrow", CallingConvention = CallingConvention.StdCall)]
         //public static extern int firstrow(int pint);
         static extern int firstrow(IntPtr pint);
         public static int FirstRow(int pint)
@@ -358,7 +359,7 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="pint"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "nextrow", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "nextrow", CallingConvention = CallingConvention.StdCall)]
         //public static extern int nextrow(int pint);
         static extern int nextrow(IntPtr pint);
         public static int NextRow(int pint)
@@ -373,7 +374,7 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="pint"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "prevrow", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "prevrow", CallingConvention = CallingConvention.StdCall)]
         //public static extern int prevrow(int pint);
         static extern int prevrow(IntPtr pint);
         public static int PrevRow(int pint)
@@ -389,7 +390,7 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="pint"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "lastrow", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "lastrow", CallingConvention = CallingConvention.StdCall)]
         //public static extern int lastrow(int pint);
         static extern int lastrow(IntPtr pint);
         public static int LastRow(int pint)
@@ -407,7 +408,7 @@ namespace CrHgWcfService.Common
         /// <param name="pinter"></param>
         /// <param name="comm"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "set_ic_commport", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "set_ic_commport", CallingConvention = CallingConvention.StdCall)]
         //public static extern int set_ic_commport(int pinter, int comm);
         static extern int set_ic_commport(IntPtr pint, int comm);
         public static int SetIcCommport(int pint, int comm)
@@ -425,7 +426,7 @@ namespace CrHgWcfService.Common
         /// <param name="index"></param>
         /// <param name="resultname"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "getresultnamebyindex", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "getresultnamebyindex", CallingConvention = CallingConvention.StdCall)]
         //public static extern int getresultnamebyindex(int pinter, int index,ref string resultname);
         static extern int getresultnamebyindex(IntPtr pint, long index, [MarshalAs(UnmanagedType.LPStr)] StringBuilder resultname);
         public static int GetResultNameByIndex(int pint, long index, ref string resultname)
@@ -447,7 +448,7 @@ namespace CrHgWcfService.Common
         /// <param name="flag"></param>
         /// <param name="direct"></param>
         /// <returns></returns>
-        [DllImport(Dllname, EntryPoint = "setdebug", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Dllname, EntryPoint = "setdebug", CallingConvention = CallingConvention.StdCall)]
         //public static extern int setdebug(int pint, int flag, string direct);
         static extern int setdebug(IntPtr pint, int flag, string direct);
         public static int SetDebug(int pint, int flag, string direct)
@@ -505,10 +506,10 @@ namespace CrHgWcfService.Common
         }
 
 
-        //[DllImport(Dllname, EntryPoint = "init", CallingConvention = CallingConvention.Cdecl)]
+        //[DllImport(Dllname, EntryPoint = "init", CallingConvention = CallingConvention.StdCall)]
         //public static extern int set_ic_commport(int pint, int comm);
 
-        //[DllImport(Dllname, EntryPoint = "init", CallingConvention = CallingConvention.Cdecl)]
+        //[DllImport(Dllname, EntryPoint = "init", CallingConvention = CallingConvention.StdCall)]
         //public static extern int setdebug(int pinter, int flag, string direct);
     }
 }
