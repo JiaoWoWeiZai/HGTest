@@ -42,7 +42,6 @@ namespace CrHgWcfService.Common
     public static class HgEngine
     {
         private const string Dllname = @"Libraries\\HG_Interface.dll";
-        private const string Dllnamec = @"Libraries\\HG_Interface_center.dll";
 
         /// <summary>
         /// 该函数建立一个新的接口实例，但这个函数没有初始化接口，必须再调用 init 函

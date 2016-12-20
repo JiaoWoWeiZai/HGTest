@@ -1,4 +1,5 @@
 ﻿using CrHgWcfService.Common;
+// ReSharper disable InconsistentNaming
 
 namespace CrHgWcfService.Model
 {
@@ -6,66 +7,119 @@ namespace CrHgWcfService.Model
     {
         public PersonInfo(int interfaceId)
         {
+            //获取信息记录行数
             var count = HgEngine.GetRowCount(interfaceId);
+            //设置结果集为基本信息PersonInfo
             HgEngine.setresultset(interfaceId, "PersonInfo");
 
             var pvalue = "";
             HgEngine.GetByName(interfaceId, "name", ref pvalue);
-            Name = pvalue;
+            name = pvalue;
             HgEngine.GetByName(interfaceId, "indi_id", ref pvalue);
-            IndiId = pvalue;
+            indi_id = pvalue;
             HgEngine.GetByName(interfaceId, "sex", ref pvalue);
-            Sex = pvalue;
+            sex = pvalue;
             HgEngine.GetByName(interfaceId, "pers_identity", ref pvalue);
-            PersIdentity = pvalue;
+            pers_identity = pvalue;
             HgEngine.GetByName(interfaceId, "pers_status", ref pvalue);
-            PersStatus = pvalue;
+            pers_status = pvalue;
             HgEngine.GetByName(interfaceId, "office_grade", ref pvalue);
-            OfficeGrade = pvalue;
+            office_grade = pvalue;
             HgEngine.GetByName(interfaceId, "idcard", ref pvalue);
-            Idcard = pvalue;
+            idcard = pvalue;
             HgEngine.GetByName(interfaceId, "telephone", ref pvalue);
-            Telephone = pvalue;
+            telephone = pvalue;
             HgEngine.GetByName(interfaceId, "birthday", ref pvalue);
-            Birthday = pvalue;
+            birthday = pvalue;
             HgEngine.GetByName(interfaceId, "post_code", ref pvalue);
-            PostCode = pvalue;
+            post_code = pvalue;
             HgEngine.GetByName(interfaceId, "corp_id", ref pvalue);
-            CorpId = pvalue;
+            corp_id = pvalue;
             HgEngine.GetByName(interfaceId, "corp_name", ref pvalue);
-            CorpName = pvalue;
+            corp_name = pvalue;
             HgEngine.GetByName(interfaceId, "last_balance", ref pvalue);
-            LastBalance = pvalue;
+            last_balance = pvalue;
 
 
             if (count != 1) return;
             HgEngine.setresultset(interfaceId, "freezeinfo");
             HgEngine.GetByName(interfaceId, "fund_id", ref pvalue);
-            FundId = pvalue;
+            fund_id = pvalue;
             HgEngine.GetByName(interfaceId, "fund_name", ref pvalue);
-            FundName = pvalue;
+            fund_name = pvalue;
             HgEngine.GetByName(interfaceId, "indi_freeze_status", ref pvalue);
-            IndiFreezeStatus = pvalue;
+            indi_freeze_status = pvalue;
             HgEngine.setresultset(interfaceId, "clinicapplyinfo");
             HgEngine.GetByName(interfaceId, "serial_apply", ref pvalue);
-            SerialApply = pvalue;
+            serial_apply = pvalue;
         }
-        public string IndiId { get; set; }
-        public string Name { get; set; }
-        public string Sex { get; set; }
-        public string PersIdentity { get; set; }
-        public string PersStatus { get; set; }
-        public string OfficeGrade { get; set; }
-        public string Idcard { get; set; }
-        public string Telephone { get; set; }
-        public string Birthday { get; set; }
-        public string PostCode { get; set; }
-        public string CorpId { get; set; }
-        public string CorpName { get; set; }
-        public string LastBalance { get; set; }
-        public string FundId { get; set; }
-        public string FundName { get; set; }
-        public string IndiFreezeStatus { get; set; }
-        public string SerialApply { get; set; }
+        /// <summary>
+        /// 个人电脑号
+        /// </summary>
+        public string indi_id { get; set; }
+        /// <summary>
+        /// 姓名
+        /// </summary>
+        public string name { get; set; }
+        /// <summary>
+        /// 性别
+        /// </summary>
+        public string sex { get; set; }
+        /// <summary>
+        /// 人员类别
+        /// </summary>
+        public string pers_identity { get; set; }
+        /// <summary>
+        /// 人员状态
+        /// </summary>
+        public string pers_status { get; set; }
+        /// <summary>
+        /// 级别
+        /// </summary>
+        public string office_grade { get; set; }
+        /// <summary>
+        /// 公民身份号码
+        /// </summary>
+        public string idcard { get; set; }
+        /// <summary>
+        /// 联系电话
+        /// </summary>
+        public string telephone { get; set; }
+        /// <summary>
+        /// 出生日期
+        /// </summary>
+        public string birthday { get; set; }
+        /// <summary>
+        /// 地区编码
+        /// </summary>
+        public string post_code { get; set; }
+        /// <summary>
+        /// 单位编码
+        /// </summary>
+        public string corp_id { get; set; }
+        /// <summary>
+        /// 单位名称
+        /// </summary>
+        public string corp_name { get; set; }
+        /// <summary>
+        /// 个人帐户余额
+        /// </summary>
+        public string last_balance { get; set; }
+        /// <summary>
+        /// 基金编号 
+        /// </summary>
+        public string fund_id { get; set; }
+        /// <summary>
+        /// 基金名称
+        /// </summary>
+        public string fund_name { get; set; }
+        /// <summary>
+        /// 基金状态标志
+        /// </summary>
+        public string indi_freeze_status { get; set; }
+        /// <summary>
+        /// 门诊选点申请序列号
+        /// </summary>
+        public string serial_apply { get; set; }
     }
 }

@@ -32,7 +32,6 @@
 
 using System;
 using System.Linq;
-using System.Runtime.Serialization;
 using CrHgWcfService.Common;
 using CrHgWcfService.Model;
 
@@ -49,7 +48,6 @@ namespace CrHgWcfService
         private const string PassWord = "hexu";
 
         private int _interfaceId;
-
         private int InterfaceId
         {
             get
@@ -64,6 +62,7 @@ namespace CrHgWcfService
 
         private bool RunService(string funId, ref string errorInfo, params Param[] pars)
         {
+            if (errorInfo == null) throw new ArgumentNullException(nameof(errorInfo));
             if (InterfaceId <= 0)
             {
                 InitNewInterface();
@@ -123,27 +122,31 @@ namespace CrHgWcfService
         /// <param name="name">姓名</param>
         /// <param name="idNum">身份证号</param>
         /// <returns>方法调用结果</returns>
-        public string GetPersonInfoByIdNo(string name, string idNum)
+        public string GetPersonJsonByIdNum(string name, string idNum)
+        {
+            var errorMsg = string.Empty;
+            var info = GetPersonInfoByIdNum(idNum, ref errorMsg);
+            if (info == null) return errorMsg;
+            return name == info.name ? JsonHelper.Serialize(info) : "姓名与身份证号不匹配！";
+        }
+
+        public PersonInfo GetPersonInfoByIdNum(string idNum, ref string errorMsg)
         {
             var s = string.Empty;
             Login(UserName, PassWord);
-            if (!RunService("BIZH131001", ref s, new Param("idcard", idNum), new Param("hospital_id", "006010"), new Param("treatment_type", "110"), new Param("biz_type", "11"), new Param("biz_date", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"))))
-                return s;
+            if (!RunService("BIZH131001", ref s, new Param("idcard", idNum), new Param("hospital_id", "006010"),
+                new Param("treatment_type", "110"), new Param("biz_type", "11"),
+                new Param("biz_date", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"))))
+            {
+                errorMsg = s;
+                return null;
+            }
             SetResultSet(InterfaceId, "personinfo");
             var size = GetRowCount(InterfaceId);
-            if (size > 1)
-            {
-                return "数据多于一条,查询错误！";
-            }
-            if (size < 1)
-            {
-                return "数据少于一条,查询错误！";
-            }
 
-            var nname = string.Empty;
-            GetByName(InterfaceId, "name", ref nname);
-            return name == nname ? JsonHelper.Serialize(new PersonInfo(InterfaceId)) : "姓名与身份证号不匹配！";
-            ;
+            if (size == 1) return new PersonInfo(InterfaceId);
+            errorMsg = size > 1 ? "数据多于一条,查询错误！" : "数据少于一条,查询错误！";
+            return null;
         }
 
         /// <summary>
@@ -153,24 +156,31 @@ namespace CrHgWcfService
         /// <param name="idNum">身份证号</param>
         /// <param name="preNum">处方号</param>
         /// <returns>方法调用结果</returns>
-        public string HealthCareMedicalRegistration(string name, string idNum, string preNum)
+        public string Settlement(string idNum, string preNum)
         {
+            var errorMsg = string.Empty;
+            var person = GetPersonInfoByIdNum(idNum, ref errorMsg);
+            if (person == null) return errorMsg;
+            var register = new RegisterInfo(person);
+            register.GetInfoFromHis(preNum);
+
 
             return "方法正在构造,敬请期待！";
         }
 
+        #region Dll原生方法
 
         public int NewInterface()
         {
             return HgEngine.NewInterface();
         }
 
-        public int NewInterfaceWithInit(string addr, int port, string servlet)
+        public int NewInterfaceWithInit(string addr = Server, int port = Port, string servlet = Servlet)
         {
             return HgEngine.NewInterfaceWithInit(addr, port, servlet);
         }
 
-        public int Init(int print, string addr, int port, string servlet)
+        public int Init(int print, string addr = Server, int port = Port, string servlet = Servlet)
         {
             return HgEngine.Init(print, addr, port, servlet);
         }
@@ -289,24 +299,8 @@ namespace CrHgWcfService
         {
             return HgEngine.SetDebug(print, flag, direct);
         }
-    }
-    [DataContract]
-    public class Param
-    {
-        //int PutCol(int pint, string pname, string pvalue);
-        //public int Interface { get; set; }
 
-        public Param(string name, string value)
-        {
-            Name = name;
-            Value = value;
-        }
 
-        public string Name { get; set; }
-
-        public string Value { get; set; }
-
-        //public string Statu { get; set; }
-
+        #endregion
     }
 }

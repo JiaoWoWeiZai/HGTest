@@ -40,10 +40,10 @@ namespace CrHgWcfService
     {
 
         [OperationContract]
-        string GetPersonInfoByIdNo(string name, string idNum);
+        string GetPersonJsonByIdNum(string name, string idNum);
 
         [OperationContract]
-        string HealthCareMedicalRegistration(string name, string idNum, string preNum);
+        string Settlement(string idNum, string preNum);
 
 
         [OperationContract]

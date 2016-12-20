@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using CrHgWcfService.Model;
 using Oracle.ManagedDataAccess.Client;
 
 namespace WindowsFormsApplication1
@@ -62,6 +57,21 @@ namespace WindowsFormsApplication1
             OracleParameter[] array = { parameter0, parameter1, parameter2, parameter3, parameter4, parameter5, parameter6, parameter7 };
 
             Database.RunProcRetNone("patientInterface.getPatientRegisterInfo", ref array);
+
+            if (array[1].Value.ToString() == "0")
+            {
+
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            RegisterInfo info = new RegisterInfo();
+            foreach (var variable in info.GetType().GetProperties())
+            {
+                Console.WriteLine(variable.Name + @"	" + variable.GetValue(info));
+            }
+            ;
         }
     }
 }
