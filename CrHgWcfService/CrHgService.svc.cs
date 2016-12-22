@@ -162,7 +162,7 @@ namespace CrHgWcfService
             var person = GetPersonInfoByIdNum(idNum, ref errorMsg);
             if (person == null) return errorMsg;
             var register = new RegisterInfo(person);
-            register.GetInfoFromHis(preNum);
+            register = RegisterInfo.GetInfoFromHis(preNum, register);
 
 
             return "方法正在构造,敬请期待！";
@@ -212,7 +212,7 @@ namespace CrHgWcfService
 
         public int SetResultSet(int print, string resultName)
         {
-            return HgEngine.setresultset(print, resultName);
+            return HgEngine.SetResultSet(print, resultName);
         }
 
         public int RunXml(int print, string xml)

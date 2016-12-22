@@ -146,7 +146,7 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="procName">过程名称</param>
         /// <param name="pm">参数数组</param>
-        public static void RunProcRetNone(string procName, ref OracleParameter[] pm)
+        public static void RunProcRetNone(string procName, ref OracleParameter[] pm)            
         {
             using (OracleConnection conn = Connectdb())
             {
@@ -208,6 +208,37 @@ namespace CrHgWcfService.Common
                     ot.Rollback();
                     throw e;
                 }
+            }
+        }
+
+
+        private DataTable DBExecStoredProcedure(string storeureName, OracleParameter[] sqlParme)
+        {
+            try
+            {
+                //使用微软的ORACLE访问接口                 
+                if (Connectdb().State == ConnectionState.Closed)//获取数据连接
+                    Connectdb().Open();
+                OracleCommand oraCmd = new OracleCommand(storeureName, Connectdb());
+                oraCmd.CommandType = CommandType.StoredProcedure;
+                oraCmd.Parameters.Clear();//先清空   
+                foreach (OracleParameter parme in sqlParme)
+                {
+                    oraCmd.Parameters.Add(parme);
+                }
+                DataTable table = new DataTable();
+                DateTime BegTime = System.DateTime.Now;
+                OracleDataAdapter da1 = new OracleDataAdapter(oraCmd);//取出数据
+                da1.Fill(table);
+                return table;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                Connectdb().Close();
             }
         }
     }

@@ -79,6 +79,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Database.cs" />
+    <Compile Include="Common\MedicareClient.cs" />
+    <Compile Include="Model\BaseInfo.cs" />
+    <Compile Include="Model\BizInfo.cs" />
+    <Compile Include="Model\ClinicApplyInfo.cs" />
+    <Compile Include="Model\FeeBatchInfo.cs" />
     <Compile Include="Model\FeeInfo.cs" />
     <Compile Include="Common\HgEngine.cs" />
     <Compile Include="Common\JsonHelper.cs" />
@@ -86,9 +91,15 @@
     <Compile Include="CrHgService.svc.cs">
       <DependentUpon>CrHgService.svc</DependentUpon>
     </Compile>
+    <Compile Include="Model\FreezeInfo.cs" />
+    <Compile Include="Model\FundInfo.cs" />
     <Compile Include="Model\Param.cs" />
+    <Compile Include="Model\PayInfo.cs" />
     <Compile Include="Model\PersonInfo.cs" />
+    <Compile Include="Model\PinType.cs" />
+    <Compile Include="Model\RefFeeInfo.cs" />
     <Compile Include="Model\RegisterInfo.cs" />
+    <Compile Include="Model\SpInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

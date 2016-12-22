@@ -13,7 +13,7 @@ namespace WindowsFormsApplication1
     {
         public static OracleConnection Connectdb()
         {
-           // string connString =ConfigurationManager.ConnectionStrings["OraConnectionString"].ConnectionString;// System.Configuration.ConfigurationManager.AppSettings["ConnectionString"];//ConfigurationSettings.AppSettings["connString"];
+            // string connString =ConfigurationManager.ConnectionStrings["OraConnectionString"].ConnectionString;// System.Configuration.ConfigurationManager.AppSettings["ConnectionString"];//ConfigurationSettings.AppSettings["connString"];
 
             OracleConnection conn = new OracleConnection
             {
@@ -22,7 +22,7 @@ namespace WindowsFormsApplication1
             //OracleConnection conn = new OracleConnection(connString);
             try
             {
-                conn.Open(); 
+                conn.Open();
             }
             catch (Exception)
             {
@@ -75,7 +75,7 @@ namespace WindowsFormsApplication1
                 return "";
             }
         }
-        
+
         //获取XML节点值
         public static string GetXmlNodeValue(XmlNode node, string parth)
         {
@@ -91,7 +91,7 @@ namespace WindowsFormsApplication1
             return lsResult;
         }
 
-     
+
 
         /// <summary>Oracle参数生成函数
         /// </summary>
@@ -101,7 +101,7 @@ namespace WindowsFormsApplication1
         /// <param name="pDirection">输入输出</param>
         /// <param name="value">参数值</param>
         /// <returns>Oracle参数对象</returns>
-        public static OracleParameter CreateParameter(string name,OracleDbType oracleType, int size, ParameterDirection pDirection, string value)
+        public static OracleParameter CreateParameter(string name, OracleDbType oracleType, int size, ParameterDirection pDirection, string value)
         {
             OracleParameter pm = new OracleParameter(name, oracleType, size)
             {
@@ -125,7 +125,7 @@ namespace WindowsFormsApplication1
                 {
                     // conn.Open();
                     OracleCommand cmd = conn.CreateCommand();
-                    cmd.CommandText = "HIS_YYY." + procName;
+                    cmd.CommandText = procName;
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddRange(pm);
 
@@ -209,7 +209,7 @@ namespace WindowsFormsApplication1
                 }
             }
         }
-    }      
-   
-    
+    }
+
+
 }

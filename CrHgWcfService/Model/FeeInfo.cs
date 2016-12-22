@@ -1,7 +1,15 @@
 ﻿// ReSharper disable InconsistentNaming
+
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using CrHgWcfService.Common;
+using Oracle.ManagedDataAccess.Client;
+
 namespace CrHgWcfService.Model
 {
-    public class FeeInfo
+    public class FeeInfo : BaseInfo
     {
         /// <summary>
         /// 项目药品类型
@@ -71,5 +79,47 @@ namespace CrHgWcfService.Model
         /// 医院费用序列号
         /// </summary>
         public string hos_serial { get; set; }
+
+        public string staple_flag { get; set; }
+
+        public static FeeInfo[] GetFeeInfoFromHis(string registerId, string totalAmt, ref string errorMsg)
+        {
+            var param0 = Database.CreateParameter("registerId", OracleDbType.Varchar2, 20,
+                ParameterDirection.Input, registerId);
+            var param1 = Database.CreateParameter("totalAmt", OracleDbType.Varchar2, 10,
+                ParameterDirection.Input, totalAmt);
+            var param2 = Database.CreateParameter("resultCode", OracleDbType.Varchar2, 20,
+                ParameterDirection.Output, "");
+            var param3 = Database.CreateParameter("resultMessage", OracleDbType.Varchar2, 20,
+                ParameterDirection.Output, "");
+            var param4 = Database.CreateParameter("feeInfoList", OracleDbType.RefCursor, 20,
+                ParameterDirection.Output, "");
+            OracleParameter[] array = { param0, param1, param2, param3, param4 };
+
+            var db = Database.RunProcRetDataSet("patientInterface.getPatientFeeInfo", ref array);
+            errorMsg = param3.Value.ToString();
+            if (param2.Value.ToString() != "0") return null;
+            return (from DataRow row in db.Tables[0].Rows
+                    select new FeeInfo
+                    {
+                        medi_item_type = row["MEDI_ITEM_TYPE"].ToString(),
+                        his_item_code = row["HIS_ITEM_CODE"].ToString(),
+                        his_item_name = row["HIS_ITEM_NAME"].ToString(),
+                        model = row["MODEL"].ToString(),
+                        factory = row["FACTORY"].ToString(),
+                        standard = row["STANDARD"].ToString(),
+                        fee_date = row["FEE_DATE"].ToString(),
+                        input_date = row["INPUT_DATE"].ToString(),
+                        unit = row["UNIT"].ToString(),
+                        price = row["PRICE"].ToString(),
+                        dosage = row["DOSAGE"].ToString(),
+                        money = row["MONEY"].ToString(),
+                        recipe_no = row["RECIPE_NO"].ToString(),
+                        doctor_no = row["DOCTOR_NO"].ToString(),
+                        doctor_name = row["DOCTOR_NAME"].ToString(),
+                        hos_serial = row["HOS_SERIAL"].ToString(),
+                        staple_flag = row["STAPLE_FLAG"].ToString(),
+                    }).ToArray();
+        }
     }
 }

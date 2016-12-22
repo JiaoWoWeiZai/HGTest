@@ -9,11 +9,16 @@ namespace CrHgWcfService.Model
     [DataContract]
     public class Param
     {
-        public Param(string name, string value)
+        public Param(string name, string value, int row = 1)
         {
             Name = name;
             Value = value;
+            Row = row;
         }
+
+
+
+        public int Row { get; set; }
 
         public string Name { get; set; }
 

@@ -10,7 +10,7 @@ using Oracle.ManagedDataAccess.Client;
 
 namespace CrHgWcfService.Model
 {
-    public class RegisterInfo
+    public class RegisterInfo : BaseInfo
     {
 
         /// <summary>
@@ -40,7 +40,20 @@ namespace CrHgWcfService.Model
         /// <summary>
         /// 
         /// </summary>
+        public string serial_no { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string patient_flag { get; set; } = "0";
+        /// <summary>
+        /// 
+        /// </summary>
+        public string fee_batch { get; set; }
+        public string hos_biz_serial { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string note { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -152,8 +165,19 @@ namespace CrHgWcfService.Model
         public List<FeeInfo> FeeInfos { get; set; }
 
 
-        public RegisterInfo(PersonInfo person)
+        public RegisterInfo() { }
+        public RegisterInfo(PersonInfo person, RegisterInfo defaultInfo = null)
         {
+            if (defaultInfo != null)
+            {
+                foreach (var pro in GetType().GetProperties())
+                {
+                    if (pro.GetValue(this, null) != pro.GetValue(defaultInfo, null))
+                    {
+                        pro.SetValue(this, pro.GetValue(defaultInfo, null), null);
+                    }
+                }
+            }
             indi_id = person.indi_id;
             sex = person.sex;
             reg_date = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
@@ -164,9 +188,14 @@ namespace CrHgWcfService.Model
         /// 调用存储过程,以处方号获得属性并初始化
         /// </summary>
         /// <param name="registerId"></param>
-        public void GetInfoFromHis(string registerId)
+        /// <param name="defaultInfo"></param>
+        /// <param name="regInfo"></param>
+        public static RegisterInfo GetInfoFromHis(string registerId, RegisterInfo regInfo = null)
         {
-            recipe_no = registerId;
+            //, new RegisterInfo() { serial_no = "0060101612146557" }
+            //defaultInfo = defaultInfo ?? new RegisterInfo();
+            regInfo = regInfo ?? new RegisterInfo();
+            regInfo.recipe_no = registerId;
 
             var resultCode = string.Empty;//错误代码
             var resultMessage = string.Empty;//错误描述
@@ -196,14 +225,15 @@ namespace CrHgWcfService.Model
 
             Database.RunProcRetNone("patientInterface.getPatientRegisterInfo", ref array);
 
-            if (array[1].Value.ToString() != "0") return;
-            patient_id = patientId;
-            in_disease = inDisease;
-            diagnose = inDisease;
-            icd = inDisease;
-            disease = diseases;
-            in_dept = inDept;
-            in_dept_name = inDeptName;
+            if (array[1].Value.ToString() != "0") return regInfo;
+            regInfo.patient_id = param3.Value.ToString();
+            regInfo.in_disease = param4.Value.ToString();
+            regInfo.diagnose = param4.Value.ToString();
+            regInfo.icd = param4.Value.ToString();
+            regInfo.disease = param5.Value.ToString();
+            regInfo.in_dept = param6.Value.ToString();
+            regInfo.in_dept_name = param7.Value.ToString();
+            return regInfo;
         }
 
     }

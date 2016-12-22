@@ -39,7 +39,7 @@ namespace CrHgWcfService.Common
     /// <summary>
     /// 医保卡引擎接口
     /// </summary>
-    public static class HgEngine
+    public class HgEngine
     {
         private const string Dllname = @"Libraries\\HG_Interface.dll";
 
@@ -196,7 +196,11 @@ namespace CrHgWcfService.Common
         /// <param name="resultName"></param>
         /// <returns></returns>
         [DllImport(Dllname, EntryPoint = "setresultset", CallingConvention = CallingConvention.StdCall)]
-        public static extern int setresultset(int pint, string resultName);
+        static extern int setresultset(IntPtr pint, string resultName);
+        public static int SetResultSet(int pint, string resultName)
+        {
+            return setresultset(new IntPtr(pint), resultName);
+        }
 
 
 
@@ -204,10 +208,10 @@ namespace CrHgWcfService.Common
         public static extern int runxml(int pint, string xml);
 
         [DllImport(Dllname, EntryPoint = "getxmlstr_t", CallingConvention = CallingConvention.StdCall)]
-        public static extern int getxmlstr_t(int pint,ref string xml);
+        public static extern int getxmlstr_t(int pint, ref string xml);
 
         [DllImport(Dllname, EntryPoint = "getxmlstr", CallingConvention = CallingConvention.StdCall)]
-        public static extern int getxmlstr(int pint,ref string xml);
+        public static extern int getxmlstr(int pint, ref string xml);
 
         /// <summary>
         /// 该函数用来从接口取得返回的参数值。返回值小于零, 表示没有 Get 成功，返回大
