@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
+using CrHgWcfService;
 using CrHgWcfService.Common;
 using CrHgWcfService.Model;
 using Oracle.ManagedDataAccess.Client;
@@ -120,13 +121,13 @@ namespace WindowsFormsApplication1
 
             var regInfo = RegisterInfo.GetInfoFromHis("2016121992997", new RegisterInfo(personInfos[0]));
             var payInfo = new PayInfo();
-            //if (client.Bizh131104(regInfo, ref payInfo, ref errorMsg))
-            //    AppendText(payInfo);
-            //else
-            //    AppendText(errorMsg);
+            if (client.Bizh131104(regInfo, ref payInfo, ref errorMsg))
+                AppendText(payInfo);
+            else
+                AppendText(errorMsg);
             var infos = new BizInfo[1];
             var p1 = new PersonInfo();
-            if (client.Bizh131102("2", PinType.SerialNo, "0060101612146557", "110", ref infos, ref p1, "11",
+            if (client.Bizh131102("2", PinType.SerialNo, payInfo.serial_no, "110", ref infos, ref p1, "11",
                 ref errorMsg))
             {
                 AppendText(infos.Length);
@@ -136,7 +137,7 @@ namespace WindowsFormsApplication1
             }
             else
                 AppendText(errorMsg);
-            regInfo = RegisterInfo.GetInfoFromHis("2016121992997", new RegisterInfo(personInfos[0], new RegisterInfo { serial_no = "0060101612146557" }));
+            regInfo = RegisterInfo.GetInfoFromHis("2016121992997", new RegisterInfo(personInfos[0], new RegisterInfo { serial_no = payInfo.serial_no }));
             payInfo = new PayInfo();
             var bizNo = string.Empty;
             var feeInfos = FeeInfo.GetFeeInfoFromHis("2016121992997", "62.75", ref errorMsg);
@@ -156,23 +157,171 @@ namespace WindowsFormsApplication1
             //查询登记信息
             var infos = new BizInfo[1];
             var p1 = new PersonInfo();
-            var refFeeInfo = new RefFeeInfo[1];
-            var feeBatchInfo = new FeeBatchInfo[1];
-            if (client.Bizh131102("3", PinType.SerialNo, "0060101612146557", "110", ref infos, ref p1, "11", ref refFeeInfo, ref feeBatchInfo,
-                "0", ref errorMsg))
+            //var refFeeInfo = new RefFeeInfo[1];
+            //var feeBatchInfo = new FeeBatchInfo[1];
+            //var feeBatchInfo1 = new FeeBatchInfo[1];
+            //if (client.Bizh131102("3", PinType.SerialNo, "0060101612146557", "110", ref infos, ref p1, "11",
+            //    ref refFeeInfo, ref feeBatchInfo,
+            //    "0", ref errorMsg))
+            //{
+            //    AppendJsonText(infos);
+            //    AppendText(p1);
+            //    AppendJsonText(refFeeInfo);
+            //    AppendJsonText(feeBatchInfo);
+            //}
+            //else
+            //{
+            //    AppendText(errorMsg);
+            //    return;
+            //}
+            //foreach (var t in feeBatchInfo)
+            //{
+            //    if (client.Bizh131102("3", PinType.SerialNo, "0060101612146557", "110", ref infos, ref p1, "11",
+            //        ref refFeeInfo, ref feeBatchInfo1,
+            //        t.fee_batch, ref errorMsg))
+            //    {
+            //        //AppendJsonText(infos);
+            //        AppendText(p1);
+            //        //AppendJsonText(refFeeInfo);
+            //        AppendJsonText(feeBatchInfo1);
+            //    }
+            //    else
+            //    {
+            //        AppendText(errorMsg);
+            //        return;
+            //    }
+            //    for (int j = 0; j < infos.Length; j++)
+            //    {
+
+
+            //        var serNo = string.Empty;
+            //        var regInfo = RegisterInfo.GetInfoFromBizInfo(infos[j],
+            //            new RegisterInfo(p1,
+            //                new RegisterInfo { serial_no = "0060101612146557", fee_batch = t.fee_batch }));
+            //        var payInfo = new PayInfo();
+            //        ;
+            //        if (client.Bizh131104(regInfo, refFeeInfo, ref serNo, ref payInfo, ref errorMsg, "11", "3"))
+            //        {
+            //            AppendText(regInfo);
+            //            //AppendText(refFeeInfo);
+            //            AppendText("dasdasdasdsa");
+            //            AppendText(serNo);
+            //            AppendText(payInfo);
+            //        }
+            //        else
+            //        {
+            //            AppendText(errorMsg);
+            //            return;
+            //        }
+            //    }
+            //}
+            if(client.Bizh131102("2", PinType.Idcard, "445221198010254537", "110", ref infos, ref p1, "11", ref errorMsg))
             {
                 AppendJsonText(infos);
                 AppendText(p1);
-                AppendJsonText(refFeeInfo);
-                AppendJsonText(feeBatchInfo);
+
             }
             else
             {
                 AppendText(errorMsg);
+                return;
             }
-            ;
+            
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            var a =new CrHgService().Registration("445221198010254537", "2016121992997", "62.75");
+            AppendText(a);
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            var a = new CrHgService().TrialBalance("445221198010254537", "2016121992997", "62.75");
+            AppendText(a);
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            //查询登记信息
+            var infos = new BizInfo[1];
+            var p1 = new PersonInfo();
+            //var refFeeInfo = new RefFeeInfo[1];
+            //var feeBatchInfo = new FeeBatchInfo[1];
+            //var feeBatchInfo1 = new FeeBatchInfo[1];
+            //if (client.Bizh131102("3", PinType.SerialNo, "0060101612146557", "110", ref infos, ref p1, "11",
+            //    ref refFeeInfo, ref feeBatchInfo,
+            //    "0", ref errorMsg))
+            //{
+            //    AppendJsonText(infos);
+            //    AppendText(p1);
+            //    AppendJsonText(refFeeInfo);
+            //    AppendJsonText(feeBatchInfo);
+            //}
+            //else
+            //{
+            //    AppendText(errorMsg);
+            //    return;
+            //}
+            //foreach (var t in feeBatchInfo)
+            //{
+            //    if (client.Bizh131102("3", PinType.SerialNo, "0060101612146557", "110", ref infos, ref p1, "11",
+            //        ref refFeeInfo, ref feeBatchInfo1,
+            //        t.fee_batch, ref errorMsg))
+            //    {
+            //        //AppendJsonText(infos);
+            //        AppendText(p1);
+            //        //AppendJsonText(refFeeInfo);
+            //        AppendJsonText(feeBatchInfo1);
+            //    }
+            //    else
+            //    {
+            //        AppendText(errorMsg);
+            //        return;
+            //    }
+            //    for (int j = 0; j < infos.Length; j++)
+            //    {
 
 
+            //        var serNo = string.Empty;
+            //        var regInfo = RegisterInfo.GetInfoFromBizInfo(infos[j],
+            //            new RegisterInfo(p1,
+            //                new RegisterInfo { serial_no = "0060101612146557", fee_batch = t.fee_batch }));
+            //        var payInfo = new PayInfo();
+            //        ;
+            //        if (client.Bizh131104(regInfo, refFeeInfo, ref serNo, ref payInfo, ref errorMsg, "11", "3"))
+            //        {
+            //            AppendText(regInfo);
+            //            //AppendText(refFeeInfo);
+            //            AppendText("dasdasdasdsa");
+            //            AppendText(serNo);
+            //            AppendText(payInfo);
+            //        }
+            //        else
+            //        {
+            //            AppendText(errorMsg);
+            //            return;
+            //        }
+            //    }
+            //}
+            if (client.Bizh131102("2", PinType.Idcard, "445221198010254537", "110", ref infos, ref p1, "11", ref errorMsg))
+            {
+                AppendJsonText(infos);
+                AppendText(p1);
+
+            }
+            else
+            {
+                AppendText(errorMsg);
+                return;
+            }
+
+
+            foreach (var t in infos)
+            {
+                var a = new CrHgService().Unregister(t.serial_no);
+                AppendText(a);
+            }
         }
     }
 }

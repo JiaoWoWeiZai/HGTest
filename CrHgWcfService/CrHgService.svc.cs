@@ -30,10 +30,9 @@
 
 #endregion
 
-using System;
-using System.Linq;
 using CrHgWcfService.Common;
 using CrHgWcfService.Model;
+// ReSharper disable InconsistentNaming
 
 namespace CrHgWcfService
 {
@@ -41,80 +40,8 @@ namespace CrHgWcfService
     // 注意: 为了启动 WCF 测试客户端以测试此服务，请在解决方案资源管理器中选择 CrHgService.svc 或 CrHgService.svc.cs，然后开始调试。
     public class CrHgService : ICrHgService
     {
-        private const string Server = "http://192.168.6.9/HygeiaWebService/web/ProcessAll.asmx";
-        private const int Port = 7001;
-        private const string Servlet = "hygeia";
-        private const string UserName = "hexu";
-        private const string PassWord = "hexu";
-
-        private int _interfaceId;
-        private int InterfaceId
-        {
-            get
-            {
-                while (_interfaceId <= 0)
-                {
-                    _interfaceId = HgEngine.NewInterfaceWithInit(Server, Port, Servlet);
-                }
-                return _interfaceId;
-            }
-        }
-
-        private bool RunService(string funId, ref string errorInfo, params Param[] pars)
-        {
-            if (errorInfo == null) throw new ArgumentNullException(nameof(errorInfo));
-            if (InterfaceId <= 0)
-            {
-                InitNewInterface();
-            }
-            var interfaceId = InterfaceId; //NewInterfaceWithInit(Server, Port, Servlet);
-            if (interfaceId < 0)
-            {
-                errorInfo = "创建接口失败";
-                return false;
-            }
-            if (Init(interfaceId, Server, Port, Servlet) < 0)
-            {
-                errorInfo = "初始化接口失败";
-                return false;
-            }
-            //var funId = "BIZH131001";
-            if (Start(interfaceId, funId) < 0)
-            {
-                errorInfo = "方法初始化失败";
-                return false;
-            }
-            if (pars.Any(param => Put(interfaceId, 1, param.Name, param.Value) < 0))
-            {
-                errorInfo = "参数添加失败";
-                return false;
-            }
-            if (Run(interfaceId) < 0)
-            {
-                var errorMsg = string.Empty;
-                GetMessage(interfaceId, ref errorMsg);
-
-                errorInfo = errorMsg;
-                return false;
-            }
-            errorInfo = "执行成功";
-            return true;
-        }
-
-        //public T GetData<T>()
-
-
-        public int InitNewInterface()
-        {
-            return InterfaceId;
-        }
-
-        public string Login(string username, string password)
-        {
-            var s = string.Empty;
-            RunService("0", ref s, new Param("login_id", username), new Param("login_password", password));
-            return s;
-        }
+        private readonly MedicareClient client = new MedicareClient();
+        private string errorMsg = string.Empty;
 
         /// <summary>
         /// 通过身份证查询医保病人信息
@@ -122,185 +49,192 @@ namespace CrHgWcfService
         /// <param name="name">姓名</param>
         /// <param name="idNum">身份证号</param>
         /// <returns>方法调用结果</returns>
-        public string GetPersonJsonByIdNum(string name, string idNum)
+        public string GetPersonInfoByIdNum(string name, string idNum)
         {
-            var errorMsg = string.Empty;
-            var info = GetPersonInfoByIdNum(idNum, ref errorMsg);
-            if (info == null) return errorMsg;
-            return name == info.name ? JsonHelper.Serialize(info) : "姓名与身份证号不匹配！";
-        }
-
-        public PersonInfo GetPersonInfoByIdNum(string idNum, ref string errorMsg)
-        {
-            var s = string.Empty;
-            Login(UserName, PassWord);
-            if (!RunService("BIZH131001", ref s, new Param("idcard", idNum), new Param("hospital_id", "006010"),
-                new Param("treatment_type", "110"), new Param("biz_type", "11"),
-                new Param("biz_date", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"))))
-            {
-                errorMsg = s;
-                return null;
-            }
-            SetResultSet(InterfaceId, "personinfo");
-            var size = GetRowCount(InterfaceId);
-
-            if (size == 1) return new PersonInfo(InterfaceId);
-            errorMsg = size > 1 ? "数据多于一条,查询错误！" : "数据少于一条,查询错误！";
-            return null;
+            client.Login();
+            var obj = new object();
+            client.Bizh131001(PinType.Idcard, idNum, name, ref obj);
+            return Json(obj);
         }
 
         /// <summary>
-        /// 医保就医登记
+        /// 挂号收费
         /// </summary>
-        /// <param name="name">姓名</param>
         /// <param name="idNum">身份证号</param>
-        /// <param name="preNum">处方号</param>
+        /// <param name="registerId">处方号</param>
+        /// <param name="totalAmt">总金额</param>
         /// <returns>方法调用结果</returns>
-        public string Settlement(string idNum, string preNum)
+        public string Registration(string idNum, string registerId, string totalAmt)
         {
-            var errorMsg = string.Empty;
-            var person = GetPersonInfoByIdNum(idNum, ref errorMsg);
-            if (person == null) return errorMsg;
-            var register = new RegisterInfo(person);
-            register = RegisterInfo.GetInfoFromHis(preNum, register);
+            client.Login();
+            var personInfos = new PersonInfo[0];
+            var freezeInfo = new FreezeInfo();
+            var clinicApplyInfo = new ClinicApplyInfo();
 
-
-            return "方法正在构造,敬请期待！";
+            //查询患者信息
+            if (!client.Bizh131001(PinType.Idcard, idNum, ref personInfos, ref freezeInfo,
+                ref clinicApplyInfo, ref errorMsg))
+                return Json(new
+                {
+                    StatusCode = -1,
+                    ResultMessage = errorMsg
+                });
+            //通过用户信息和His查询初始化挂号所需的信息
+            var regInfo = RegisterInfo.GetInfoFromHis(registerId, new RegisterInfo(personInfos[0]));
+            var payInfo = new PayInfo();
+            //挂号
+            if (!client.Bizh131104(regInfo, ref payInfo, ref errorMsg))
+                return Json(new
+                {
+                    StatusCode = 0,
+                    ResultMessage = "挂号失败,请重试"
+                });
+            var infos = new BizInfo[1];
+            var p1 = new PersonInfo();
+            //查询系统中是否存在相应信息
+            if (!client.Bizh131102("2", PinType.SerialNo, payInfo.serial_no, "110", ref infos, ref p1, "11",
+                ref errorMsg))
+                return Json(new
+                {
+                    StatusCode = -1,
+                    ResultMessage = "挂号成功但服务器中不存在对应信息，请重试"
+                });
+            var serialNo = payInfo.serial_no;
+            //初始化收费所需登记信息
+            regInfo = RegisterInfo.GetInfoFromHis(registerId,
+                new RegisterInfo(personInfos[0], new RegisterInfo { serial_no = serialNo }));
+            payInfo = new PayInfo();
+            var bizNo = string.Empty;
+            //获得处方药品明细
+            var feeInfos = FeeInfo.GetFeeInfoFromHis(registerId, totalAmt, ref errorMsg);
+            //收费
+            if (client.Bizh131104(regInfo, feeInfos, ref bizNo, ref payInfo, ref errorMsg))
+            {
+                return Json(new
+                {
+                    StatusCode = 0,
+                    PayInfo = payInfo,
+                    ResultMessage = "请求成功"
+                });
+            }
+            //取消挂号
+            if (client.CancellationRegister(serialNo, ref errorMsg))
+            {
+                return Json(new
+                {
+                    StatusCode = -1,
+                    ResultMessage = "挂号成功但收费失败,已取消挂号"
+                });
+            }
+            return Json(new
+            {
+                StatusCode = -1,
+                ResultMessage = $"挂号成功但收费失败,取消挂号失败:{errorMsg}"
+            });
         }
 
-        #region Dll原生方法
-
-        public int NewInterface()
+        /// <summary>
+        /// 退费并取消挂号
+        /// </summary>
+        /// <param name="serialNo">业务序列号</param>
+        /// <returns></returns>
+        public string Unregister(string serialNo)
         {
-            return HgEngine.NewInterface();
+            client.Login();
+            if (!(client.ReturnPremium(serialNo, ref errorMsg) && client.CancellationRegister(serialNo, ref errorMsg)))
+            {
+                return Json(new
+                {
+                    StatusCode = -1,
+                    ResultMessage = errorMsg
+                });
+            }
+
+            return Json(new
+            {
+                StatusCode = 0,
+                ResultMessage = "取消成功"
+            });
         }
 
-        public int NewInterfaceWithInit(string addr = Server, int port = Port, string servlet = Servlet)
+        /// <summary>
+        /// 收费试算
+        /// </summary>
+        /// <param name="idNum"></param>
+        /// <param name="registerId"></param>
+        /// <param name="totalAmt"></param>
+        /// <returns></returns>
+        public string TrialBalance(string idNum, string registerId, string totalAmt)
         {
-            return HgEngine.NewInterfaceWithInit(addr, port, servlet);
-        }
+            client.Login();
+            var personInfos = new PersonInfo[0];
+            var freezeInfo = new FreezeInfo();
+            var clinicApplyInfo = new ClinicApplyInfo();
 
-        public int Init(int print, string addr = Server, int port = Port, string servlet = Servlet)
-        {
-            return HgEngine.Init(print, addr, port, servlet);
-        }
-
-        public void DestoryInterface(int print)
-        {
-            HgEngine.DestoryInterface(print);
-        }
-
-        public int Start(int print, string id)
-        {
-            return HgEngine.Start(print, id);
-        }
-
-        public int Put(int print, int row, string pname, string pvalue)
-        {
-            return HgEngine.Put(print, row, pname, pvalue);
-        }
-
-        public int PutCol(int print, string pname, string pvalue)
-        {
-            return HgEngine.PutCol(print, pname, pvalue);
-        }
-
-        public int Run(int print)
-        {
-            return HgEngine.Run(print);
-        }
-
-        public int SetResultSet(int print, string resultName)
-        {
-            return HgEngine.SetResultSet(print, resultName);
-        }
-
-        public int RunXml(int print, string xml)
-        {
-            return HgEngine.runxml(print, xml);
-        }
-
-        public int GetXmlStr_t(int print, ref string xml)
-        {
-            return HgEngine.getxmlstr_t(print, ref xml);
-        }
-
-        public int GetXmlStr(int print, ref string xml)
-        {
-            return HgEngine.getxmlstr(print, ref xml);
-        }
-
-        public int GetByName(int print, string pname, ref string pvalue)
-        {
-            return HgEngine.GetByName(print, pname, ref pvalue);
-        }
-
-        public int GetByIndex(int print, int index, ref string pname, ref string pvalue)
-        {
-            return HgEngine.GetByIndex(print, index, ref pname, ref pvalue);
-        }
-
-        public int GetMessage(int print, ref string msg)
-        {
-            return HgEngine.GetMessage(print, ref msg);
-        }
-
-        public int GetException(int print, ref string msg)
-        {
-            return HgEngine.GetException(print, ref msg);
-        }
-
-        public int GetRowCount(int print)
-        {
-            return HgEngine.GetRowCount(print);
-        }
-
-        public int GetCode(int print, ref string msg)
-        {
-            return HgEngine.GetCode(print, ref msg);
-        }
-
-        public int GeterrType(int print)
-        {
-            return HgEngine.geterrtype(print);
-        }
-
-        public int FirstRow(int print)
-        {
-            return HgEngine.FirstRow(print);
-        }
-
-        public int NextRow(int print)
-        {
-            return HgEngine.NextRow(print);
-        }
-
-        public int PrevRow(int print)
-        {
-            return HgEngine.PrevRow(print);
-        }
-
-        public int LastRow(int print)
-        {
-            return HgEngine.LastRow(print);
-        }
-
-        public int SetIcCommport(int pinter, int comm)
-        {
-            return HgEngine.SetIcCommport(pinter, comm);
-        }
-
-        public int GetResultNameByIndex(int pinter, int index, ref string resultname)
-        {
-            return HgEngine.GetResultNameByIndex(pinter, index, ref resultname);
-        }
-
-        public int SetDebug(int print, int flag, string direct)
-        {
-            return HgEngine.SetDebug(print, flag, direct);
+            //查询患者信息
+            if (!client.Bizh131001(PinType.Idcard, idNum, ref personInfos, ref freezeInfo,
+                ref clinicApplyInfo, ref errorMsg))
+                return Json(new
+                {
+                    StatusCode = -1,
+                    ResultMessage = errorMsg
+                });
+            //通过用户信息和His查询初始化挂号所需的信息
+            var regInfo = RegisterInfo.GetInfoFromHis(registerId, new RegisterInfo(personInfos[0]));
+            var payInfo = new PayInfo();
+            //挂号
+            if (!client.Bizh131104(regInfo, ref payInfo, ref errorMsg))
+                return Json(new
+                {
+                    StatusCode = 0,
+                    ResultMessage = "挂号失败,请重试"
+                });
+            var infos = new BizInfo[1];
+            var p1 = new PersonInfo();
+            //查询系统中是否存在相应信息
+            if (!client.Bizh131102("2", PinType.SerialNo, payInfo.serial_no, "110", ref infos, ref p1, "11",
+                ref errorMsg))
+                return Json(new
+                {
+                    StatusCode = -1,
+                    ResultMessage = "挂号成功但服务器中不存在对应信息，请重试"
+                });
+            var serialNo = payInfo.serial_no;
+            //初始化收费所需登记信息
+            regInfo = RegisterInfo.GetInfoFromHis(registerId,
+                new RegisterInfo(personInfos[0], new RegisterInfo { serial_no = serialNo }));
+            payInfo = new PayInfo();
+            var bizNo = string.Empty;
+            //获得处方药品明细
+            var feeInfos = FeeInfo.GetFeeInfoFromHis(registerId, totalAmt, ref errorMsg);
+            //试算
+            if (client.Bizh131104(regInfo, feeInfos, ref bizNo, ref payInfo, ref errorMsg, "11", "2", "0"))
+            {
+                client.CancellationRegister(serialNo, ref errorMsg);
+                return Json(new
+                {
+                    StatusCode = 0,
+                    PayInfo = payInfo,
+                    ResultMessage = "请求成功"
+                });
+            }
+            //取消挂号
+            if (client.CancellationRegister(serialNo, ref errorMsg))
+            {
+                return Json(new
+                {
+                    StatusCode = -1,
+                    ResultMessage = "挂号成功但试算失败,已取消挂号"
+                });
+            }
+            return Json(new
+            {
+                StatusCode = -1,
+                ResultMessage = $"挂号成功但试算失败,取消挂号失败:{ errorMsg }"
+            });
         }
 
 
-        #endregion
+        private static string Json(object obj) => JsonHelper.Serialize(obj);
     }
 }

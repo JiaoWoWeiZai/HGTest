@@ -188,7 +188,6 @@ namespace CrHgWcfService.Model
         /// 调用存储过程,以处方号获得属性并初始化
         /// </summary>
         /// <param name="registerId"></param>
-        /// <param name="defaultInfo"></param>
         /// <param name="regInfo"></param>
         public static RegisterInfo GetInfoFromHis(string registerId, RegisterInfo regInfo = null)
         {
@@ -206,7 +205,7 @@ namespace CrHgWcfService.Model
             var inDeptName = string.Empty;//就诊科室名称
 
             var param0 = Database.CreateParameter("registerId", OracleDbType.Varchar2, 20,
-                ParameterDirection.Input, "2016121992997");
+                ParameterDirection.Input, registerId);
             var param1 = Database.CreateParameter("resultCode", OracleDbType.Varchar2, 10,
                 ParameterDirection.Output, resultCode);
             var param2 = Database.CreateParameter("resultMessage", OracleDbType.Varchar2, 20,
@@ -233,6 +232,21 @@ namespace CrHgWcfService.Model
             regInfo.disease = param5.Value.ToString();
             regInfo.in_dept = param6.Value.ToString();
             regInfo.in_dept_name = param7.Value.ToString();
+            return regInfo;
+        }
+
+
+        public static RegisterInfo GetInfoFromBizInfo(BizInfo bizInfo, RegisterInfo regInfo = null)
+        {
+            regInfo = regInfo ?? new RegisterInfo();
+            regInfo.recipe_no = "1";
+            regInfo.patient_id = bizInfo.patient_id;
+            regInfo.in_disease = bizInfo.in_disease;
+            regInfo.diagnose = bizInfo.in_disease;
+            regInfo.icd = bizInfo.in_disease;
+            regInfo.disease = bizInfo.disease;
+            regInfo.in_dept = bizInfo.in_dept;
+            regInfo.in_dept_name =bizInfo.in_dept_name;
             return regInfo;
         }
 

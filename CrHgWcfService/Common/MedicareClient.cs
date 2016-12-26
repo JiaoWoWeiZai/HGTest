@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Web;
 using CrHgWcfService.Model;
 
@@ -21,6 +22,11 @@ namespace CrHgWcfService.Common
         {
             InitClient(ref _errorMsg);
         }
+
+        //public static MedicareClient()
+        //{
+
+        //}
 
         public string GetError() => _errorMsg;
 
@@ -64,6 +70,16 @@ namespace CrHgWcfService.Common
             }
             msg = _errorMsg;
             return false;
+        }
+
+        public bool Login()
+        {
+            //const string server = "http://192.168.6.9/HygeiaWebService/web/ProcessAll.asmx";
+            //const int port = 7001;
+            //const string servlet = "hygeia";
+            //PInter = NewInterface();
+            //var ret = Init(PInter, server, port, servlet);
+            return RunService("0", ref _errorMsg, new Param("login_id", "hexu"), new Param("login_password", "hexu"));
         }
 
         /// <summary>
@@ -117,6 +133,8 @@ namespace CrHgWcfService.Common
             {
                 personInfo = new PersonInfo[1];
                 personInfo[0] = GetInfo<PersonInfo>("personinfo");
+                freezeInfo = GetInfo<FreezeInfo>("freezeinfo");
+                clinicapplyInfo = GetInfo<ClinicApplyInfo>("clinicapplyinfo");
                 errorMsg = "执行成功";
                 return true;
             }
@@ -138,9 +156,10 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="pinType">个人标识类型</param>
         /// <param name="pin">标识号</param>
+        /// <param name="name">用户姓名</param>
         /// <param name="personObject">返回 个人信息</param>
         /// <returns></returns>
-        public bool Bizh131001(PinType pinType, string pin, ref object personObject)
+        public bool Bizh131001(PinType pinType, string pin, string name, ref object personObject)
         {
             if (personObject == null) throw new ArgumentNullException(nameof(personObject));
             var personInfos = new PersonInfo[1];
@@ -148,10 +167,40 @@ namespace CrHgWcfService.Common
             var clinicApplyInfo = new ClinicApplyInfo();
             var errorMsg = string.Empty;
             var isSuccess = Bizh131001(pinType, pin, ref personInfos, ref freezeInfo, ref clinicApplyInfo, ref errorMsg);
-            if (personInfos.Length > 1)
-                personObject = new { PersonInfos = personInfos, ErrorMsg = errorMsg };
+            if (isSuccess)
+                if (personInfos[0].name == name)
+                    if (personInfos.Length > 1)
+                        personObject =
+                            new
+                            {
+                                StatusCode = 0,
+                                PersonInfos = personInfos,
+                                ResultMessage = "请求成功"
+                            };
+                    else
+                        personObject =
+                            new
+                            {
+                                StatusCode = 0,
+                                PersonInfo = personInfos[0],
+                                FreezeInfo = freezeInfo,
+                                ClinicApplyInfo = clinicApplyInfo,
+                                ResultMessage = "请求成功"
+                            };
+                else
+                    personObject =
+                    new
+                    {
+                        StatusCode = -1,
+                        ResultMessage = "姓名与身份证号码不匹配"
+                    };
             else
-                personObject = new { PersonInfo = personInfos[0], FreezeInfo = freezeInfo, ClinicApplyInfo = clinicApplyInfo, ErrorMsg = errorMsg };
+                personObject =
+                    new
+                    {
+                        StatusCode = -1,
+                        ResultMessage = errorMsg
+                    };
             return isSuccess;
 
         }
@@ -225,18 +274,19 @@ namespace CrHgWcfService.Common
         /// </summary>
         /// <param name="regInfo">门诊登记  参数部分</param>
         /// <param name="feeInfos"></param>
-        /// <param name="refBizInfo">返回的就医登记号</param>
+        /// <param name="serialNo">返回的就医登记号</param>
         /// <param name="payInfo">返回数据中的payinfo部分</param>
         /// <param name="errorMsg"></param>
         /// <param name="bizType"></param>
-        /// <param name="operType">收费处理:2,退费处理:3</param>
+        /// <param name="operFlag">收费处理:2,退费处理:3</param>
+        /// <param name="saveFlag"></param>
         /// <returns></returns>
-        public bool Bizh131104(RegisterInfo regInfo, FeeInfo[] feeInfos, ref string refBizInfo, ref PayInfo payInfo, ref string errorMsg, string bizType = "11", string operType = "2")
+        public bool Bizh131104(RegisterInfo regInfo, FeeInfo[] feeInfos, ref string serialNo, ref PayInfo payInfo, ref string errorMsg, string bizType = "11", string operFlag = "2", string saveFlag = "1")
         {
             Param[] args =
             {
                 new Param("biz_type", bizType),
-                new Param("oper_flag", operType),
+                new Param("oper_flag", operFlag),
                 new Param("center_id", "620013"),
                 new Param("hospital_id", HospitalId),
                 new Param("serial_no", regInfo.serial_no),
@@ -249,9 +299,10 @@ namespace CrHgWcfService.Common
                 new Param("patient_id", regInfo.patient_id),
                 new Param("serial_apply", "0"),
                 new Param("last_balance", "0"),
-                new Param("save_flag", "1"),
+                new Param("save_flag", saveFlag),
                 new Param("end_flag", "0"),
-                new Param("fee_batch",regInfo.fee_batch)
+                new Param("fee_batch",regInfo.fee_batch),
+                new Param("reg_date",DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"))
             };
 
             if (Start(PInter, "BIZH131104") < 0)
@@ -264,81 +315,24 @@ namespace CrHgWcfService.Common
                 errorMsg = "参数添加失败";
                 return false;
             }
-
-            if (feeInfos.Length <= 0)
+            if (feeInfos == null || feeInfos.Length <= 0)
             {
                 errorMsg = "费用明细长度异常,请重试";
+                return false;
             }
-            SetResultSet(PInter, "feeinfo");
+
+
             var pList = new List<Param>();
 
-            //var t = feeInfos[1];
-            //pList.AddRange(new[]
-            //{
-            //    new Param("medi_item_type", t.medi_item_type),
-            //    new Param("serial_apply", "0"),
-            //    new Param("serial_fee", "0"),
-            //    new Param("serial_no", regInfo.serial_no),
-            //    new Param("input_man", Operator),
-            //    new Param("input_staff", OperNo),
-            //    new Param("calc_flag", "0"),
-            //    new Param("his_item_code", t.his_item_code),
-            //    new Param("his_item_name", t.his_item_name),
-            //    new Param("opp_serial_fee", "0"),
-            //    new Param("input_money", t.money),
-            //    new Param("self_scale", "0"),
-            //    new Param("standard", t.standard),
-            //    new Param("fee_date", t.fee_date),
-            //    new Param("fee_batch", "1"),
-            //    new Param("input_date", t.input_date),
-            //    new Param("unit",t.unit),
-            //    new Param("price", t.price),
-            //    new Param("dosage", t.dosage),
-            //    new Param("money", t.money),
-            //    new Param("recipe_no", t.recipe_no),
-            //    new Param("hos_serial", t.hos_serial),
-            //    new Param("staple_flag", t.staple_flag),
-            //    new Param("reduce_money", "0"),
-            //    new Param("old_money","0")
-            //});
-
-            //var array = new[]
-            //{
-            //    new Param("medi_item_type", "1"),
-            //    new Param("serial_apply", "0"),
-            //    new Param("serial_fee", "0"),
-            //    new Param("serial_no", "0060101612146557"),
-            //    new Param("input_man", "吴东峰"),
-            //    new Param("input_staff", "1189"),
-            //    new Param("calc_flag", "0"),
-            //    new Param("his_item_code", "1-0232"),
-            //    new Param("his_item_name", "醋酸地塞米松片"),
-            //    new Param("opp_serial_fee", "0"),
-            //    new Param("input_money", "0.05"),
-            //    new Param("self_scale", "0"),
-            //    new Param("standard", "0.75mg天津新郑"),
-            //    new Param("fee_date", "2013-01-25 09:45:13"),
-            //    new Param("fee_batch", "1"),
-            //    new Param("input_date", "2013-01-25 09:52:21"),
-            //    new Param("unit", "片"),
-            //    new Param("price", "0.054"),
-            //    new Param("dosage", "1"),
-            //    new Param("money", "0.05"),
-            //    new Param("recipe_no", "1"),
-            //    new Param("hos_serial", "1"),
-            //    new Param("staple_flag", "1"),
-            //    new Param("reduce_money", "0"),
-            //    new Param("old_money", "0")
-            //};
-            //pList.AddRange(array);
 
             for (var i = 0; i < feeInfos.Length; i++)
             {
                 var t = feeInfos[i];
-                //pList.AddRange(feeInfos[i].GetType().GetProperties().Select(info => new Param(info.Name, info.GetValue(feeInfos[i], null).ToString(), i + 1)));
+
                 pList.AddRange(new[]
                 {
                     new Param("medi_item_type", t.medi_item_type,i+1),
+
                     new Param("serial_apply", "0",i+1),
                     new Param("serial_fee", "0",i+1),
                     new Param("serial_no", regInfo.serial_no,i+1),
@@ -347,27 +341,51 @@ namespace CrHgWcfService.Common
                     new Param("calc_flag", "0",i+1),
                     new Param("his_item_code", t.his_item_code,i+1),
                     new Param("his_item_name", t.his_item_name,i+1),
-                    new Param("opp_serial_fee", "0",i+1),
-                    new Param("input_money", t.money,i+1),
+
                     new Param("self_scale", "0",i+1),
                     new Param("standard", t.standard,i+1),
                     new Param("fee_date", t.fee_date,i+1),
-                    new Param("fee_batch", "1",i+1),
+
                     new Param("input_date", t.input_date,i+1),
                     new Param("unit", t.unit,i+1),
                     new Param("price", t.price,i+1),
                     new Param("dosage", t.dosage,i+1),
-                    new Param("money", t.money,i+1),
                     new Param("recipe_no", t.recipe_no,i+1),
-                    new Param("hos_serial", t.hos_serial,i+1),
                     new Param("staple_flag", t.staple_flag,i+1),
                     new Param("reduce_money", "0",i+1),
-                    new Param("old_money", "0",i+1)
                 });
+                if (operFlag == "2")
+                {
+                    pList.AddRange(new[]
+                    {
+                        new Param("opp_serial_fee", "0", i + 1),
+                        new Param("money", t.money,i+1),
+                        new Param("fee_batch", "1",i+1),
+                        new Param("old_money", "0",i+1),
+                        new Param("input_money", t.money,i+1),
+                        new Param("hos_serial", t.hos_serial,i+1),
+                    });
+                }
+                if (operFlag == "3")
+                {
+                    var s = (RefFeeInfo)t;
+                    pList.AddRange(new[]
+                   {
+                        new Param("opp_serial_fee", s.serial_fee, i + 1),
+                        new Param("money", "0",i+1),
+                        new Param("fee_batch", s.fee_batch,i+1),
+                        new Param("old_money", t.money,i+1),
+                        new Param("input_money", "-"+s.money,i+1),
+                        new Param("cancel_flag", "1",i+1),
+                        new Param("hos_serial", i.ToString(),i+1),
+
+                    });
+
+                }
             }
 
             //pList.AddRange(feeInfos[0].GetType().GetProperties().Select(info => new Param(info.Name, info.GetValue(feeInfos[0], null).ToString(), 1)));
-
+            SetResultSet(PInter, "feeinfo");
             if (pList.Any(param => Put(PInter, param.Row, param.Name, param.Value) < 0))
             {
                 errorMsg = "参数添加失败";
@@ -384,10 +402,12 @@ namespace CrHgWcfService.Common
             SetResultSet(PInter, "bizinfo");
             var value = string.Empty;
             GetByName(PInter, "serial_no", ref value);//就医登记号
-            refBizInfo = value;
+            serialNo = value;
             payInfo = PayInfo.GetPayInfo(PInter);
             return true;
         }
+
+        //public bool Bizh131104( RegisterInfo regInfo,  FeeInfo[] feeInfos, ref string refBizinfo, ref PayInfo payInfo, string bizType, string operType);//校验并保存门诊登记信息和费用明细信息  退费处理 as_oper_type = '3'
 
         /// <summary>
         /// 提取计算结果(BIZH000106)
@@ -434,61 +454,6 @@ namespace CrHgWcfService.Common
             return true;
         }
 
-        ///// <summary>
-        ///// 通过就医登记号或个人标识提取门诊信息 （BIZH131102）
-        ///// </summary>
-        ///// <param name="operFlag"></param>
-        ///// <param name="pinType"></param>
-        ///// <param name="pin"></param>
-        ///// <param name="treatmentType"></param>
-        ///// <param name="bizeInfos"></param>
-        ///// <param name="perInfo"></param>
-        ///// <param name="bizType"></param>
-        ///// <param name="feeInfos"></param>
-        ///// <param name="feeBatchInfo"></param>
-        ///// <param name="feeBatch"></param>
-        ///// <param name="errorMsg"></param>
-        ///// <returns></returns>
-        //public bool Bizh131102(string operFlag, PinType pinType, string pin, string treatmentType,
-        //    ref BizInfo[] bizeInfos, ref PersonInfo perInfo, string bizType, ref RefFeeInfo[] feeInfos,
-        //    ref FeeBatchInfo[] feeBatchInfo, string feeBatch, ref string errorMsg)
-        //{
-        //    List<Param> args = new List<Param>();
-        //    switch (pinType)
-        //    {
-        //        case PinType.SerialNo:
-        //            args.Add(new Param("serial_no", pin));
-        //            break;
-        //        case PinType.Name:
-        //            args.Add(new Param("name", pin));
-        //            break;
-        //        case PinType.IndiId:
-        //            args.Add(new Param("indi_id", pin));
-        //            break;
-        //        case PinType.Idcard:
-        //            args.Add(new Param("idcard", pin));
-        //            break;
-        //        default:
-        //            args.Add(new Param("ic_no", pin));
-        //            break;
-        //    }
-        //    args.AddRange(new[]
-        //    {
-        //        new Param("biz_type", bizType),
-        //        new Param("oper_flag", operFlag),
-        //        new Param("hospital_id", HospitalId),
-        //        new Param("treatment_type", treatmentType),
-        //        new Param("fee_batch", feeBatch)
-        //    });
-
-        //    var s = string.Empty;
-        //    if (!RunService("BIZH131102", ref s, args.ToArray()))
-        //    {
-        //        errorMsg = s;
-        //        return false;
-        //    }
-        //    return true;
-        //}
 
         /// <summary>
         /// 通过就医登记号或个人标识提取门诊信息 （BIZH131102）
@@ -627,6 +592,64 @@ namespace CrHgWcfService.Common
             return true;
         }
 
+        /// <summary>
+        /// 退费
+        /// </summary>
+        /// <param name="serialNo"></param>
+        /// <param name="errorMsg"></param>
+        /// <returns></returns>
+        public bool ReturnPremium(string serialNo, ref string errorMsg)
+        {
+            //查询登记信息
+            var infos = new BizInfo[1];
+            var p1 = new PersonInfo();
+            var refFeeInfo = new RefFeeInfo[1];
+            var feeBatchInfo = new FeeBatchInfo[1];
+            var feeBatchInfo1 = new FeeBatchInfo[1];
+            if (!Bizh131102("3", PinType.SerialNo, serialNo, "110", ref infos, ref p1, "11",
+                ref refFeeInfo, ref feeBatchInfo,
+                "0", ref errorMsg))
+            {
+                return false;
+            }
+            foreach (var t in feeBatchInfo)
+            {
+                if (!Bizh131102("3", PinType.SerialNo, serialNo, "110", ref infos, ref p1, "11",
+                    ref refFeeInfo, ref feeBatchInfo1,
+                    t.fee_batch, ref errorMsg))
+                {
+                    return false;
+                }
+                foreach (var t1 in infos)
+                {
+                    var serNo = string.Empty;
+                    var regInfo = RegisterInfo.GetInfoFromBizInfo(t1,
+                        new RegisterInfo(p1,
+                            new RegisterInfo { serial_no = serialNo, fee_batch = t.fee_batch }));
+                    var payInfo = new PayInfo();
+                    ;
+                    if (!Bizh131104(regInfo, refFeeInfo, ref serNo, ref payInfo, ref errorMsg, "11", "3"))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 取消挂号
+        /// </summary>
+        /// <param name="serialNo"></param>
+        /// <param name="errorMsg"></param>
+        /// <returns></returns>
+        public bool CancellationRegister(string serialNo, ref string errorMsg)
+        {
+            var infos = new BizInfo[1];
+            var p1 = new PersonInfo();
+            return Bizh131102("2", PinType.SerialNo, serialNo, "110", ref infos, ref p1, "11", ref errorMsg) && Bizh131105(p1.indi_id, serialNo, ref errorMsg);
+        }
+
         private void SetDebug()
         {
             SetDebug(PInter, 1, _directory);
@@ -656,7 +679,7 @@ namespace CrHgWcfService.Common
             return true;
         }
 
-        public T GetInfo<T>(string resultSet)
+        private T GetInfo<T>(string resultSet)
         {
             SetResultSet(PInter, resultSet);
             var info = Activator.CreateInstance<T>();
@@ -670,7 +693,7 @@ namespace CrHgWcfService.Common
             return info;
         }
 
-        public T[] GetInfos<T>(string resultSet)
+        private T[] GetInfos<T>(string resultSet)
         {
             SetResultSet(PInter, resultSet);
             var rowCount = GetRowCount(PInter);

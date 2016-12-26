@@ -30,8 +30,8 @@ Global
 		{164E3C56-1C2E-480F-81B7-7B1188D494D2}.Debug|x86.Build.0 = Debug|x86
 		{164E3C56-1C2E-480F-81B7-7B1188D494D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{164E3C56-1C2E-480F-81B7-7B1188D494D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{164E3C56-1C2E-480F-81B7-7B1188D494D2}.Release|x86.ActiveCfg = Release|Any CPU
-		{164E3C56-1C2E-480F-81B7-7B1188D494D2}.Release|x86.Build.0 = Release|Any CPU
+		{164E3C56-1C2E-480F-81B7-7B1188D494D2}.Release|x86.ActiveCfg = Release|x86
+		{164E3C56-1C2E-480F-81B7-7B1188D494D2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

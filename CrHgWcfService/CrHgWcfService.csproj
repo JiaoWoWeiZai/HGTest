@@ -106,9 +106,7 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\PublishProfiles\18.pubxml" />
-    <None Include="Properties\PublishProfiles\CrHg.pubxml" />
-    <None Include="Properties\PublishProfiles\dasd.pubxml" />
+    <None Include="Properties\PublishProfiles\9.3.pubxml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
