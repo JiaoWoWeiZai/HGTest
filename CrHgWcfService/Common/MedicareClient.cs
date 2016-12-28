@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Web;
 using CrHgWcfService.Model;
 
 namespace CrHgWcfService.Common
@@ -12,11 +9,18 @@ namespace CrHgWcfService.Common
     public class MedicareClient : HgEngine
     {
         private const string HospitalId = "006010"; //医院代码
-        private const string OperNo = "CR"; //医院代码
-        private const string Operator = "CR"; //医院代码
+        public string OperNo = "CR"; //操作者ID
+        public string Operator = "CR"; //操作者
 
         private string _errorMsg = string.Empty;
         private string _directory = string.Empty;
+
+        public bool SetOper(string operNo,string opertor)
+        {
+            OperNo = operNo;
+            Operator = opertor;
+            return true;
+        }
 
         public MedicareClient()
         {
@@ -598,7 +602,7 @@ namespace CrHgWcfService.Common
         /// <param name="serialNo"></param>
         /// <param name="errorMsg"></param>
         /// <returns></returns>
-        public bool ReturnPremium(string serialNo, ref string errorMsg)
+        public bool ReturnPremium(string serialNo,ref PayInfo payInfo, ref string errorMsg)
         {
             //查询登记信息
             var infos = new BizInfo[1];
@@ -626,7 +630,6 @@ namespace CrHgWcfService.Common
                     var regInfo = RegisterInfo.GetInfoFromBizInfo(t1,
                         new RegisterInfo(p1,
                             new RegisterInfo { serial_no = serialNo, fee_batch = t.fee_batch }));
-                    var payInfo = new PayInfo();
                     ;
                     if (!Bizh131104(regInfo, refFeeInfo, ref serNo, ref payInfo, ref errorMsg, "11", "3"))
                     {

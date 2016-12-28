@@ -119,7 +119,8 @@ namespace WindowsFormsApplication1
             if (client.Bizh131001(PinType.Idcard, "445221198010254537", ref personInfos, ref freezeInfo, ref clinicApplyInfo, ref errorMsg))
                 AppendText(personInfos[0]);
 
-            var regInfo = RegisterInfo.GetInfoFromHis("2016121992997", new RegisterInfo(personInfos[0]));
+            var regInfo = new RegisterInfo();
+            RegisterInfo.GetInfoFromHis("2016121992997",ref regInfo, new RegisterInfo(personInfos[0]));
             var payInfo = new PayInfo();
             if (client.Bizh131104(regInfo, ref payInfo, ref errorMsg))
                 AppendText(payInfo);
@@ -137,10 +138,11 @@ namespace WindowsFormsApplication1
             }
             else
                 AppendText(errorMsg);
-            regInfo = RegisterInfo.GetInfoFromHis("2016121992997", new RegisterInfo(personInfos[0], new RegisterInfo { serial_no = payInfo.serial_no }));
+            RegisterInfo.GetInfoFromHis("2016121992997",ref regInfo, new RegisterInfo(personInfos[0], new RegisterInfo { serial_no = payInfo.serial_no }));
             payInfo = new PayInfo();
             var bizNo = string.Empty;
-            var feeInfos = FeeInfo.GetFeeInfoFromHis("2016121992997", "62.75", ref errorMsg);
+            var feeInfos = new FeeInfo[1];
+            FeeInfo.GetFeeInfoFromHis("2016121992997", "62.75",ref feeInfos, ref errorMsg);
             AppendJsonText(feeInfos);
             if (client.Bizh131104(regInfo, feeInfos, ref bizNo, ref payInfo, ref errorMsg))
             {
@@ -215,7 +217,7 @@ namespace WindowsFormsApplication1
             //        }
             //    }
             //}
-            if(client.Bizh131102("2", PinType.Idcard, "445221198010254537", "110", ref infos, ref p1, "11", ref errorMsg))
+            if (client.Bizh131102("2", PinType.Idcard, "445221198010254537", "110", ref infos, ref p1, "11", ref errorMsg))
             {
                 AppendJsonText(infos);
                 AppendText(p1);
@@ -226,18 +228,18 @@ namespace WindowsFormsApplication1
                 AppendText(errorMsg);
                 return;
             }
-            
+
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            var a =new CrHgService().Registration("445221198010254537", "2016121992997", "62.75");
+            var a = new CrHgService().Registration("445221198010254537", "2016121992997", "62.75","CR","CR");
             AppendText(a);
         }
 
         private void button8_Click(object sender, EventArgs e)
         {
-            var a = new CrHgService().TrialBalance("445221198010254537", "2016121992997", "62.75");
+            var a = new CrHgService().TrialBalance("445221198010254537", "2016121992997", "62.75", "CR", "CR");
             AppendText(a);
         }
 
@@ -319,9 +321,17 @@ namespace WindowsFormsApplication1
 
             foreach (var t in infos)
             {
-                var a = new CrHgService().Unregister(t.serial_no);
+                var a = new CrHgService().Unregister(t.serial_no,"", "CR", "CR");
                 AppendText(a);
             }
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            var s ="{\"hospital_id\":\"006010\",\"serial_no\":\"0060101612148864\",\"pay_no\":\"\",\"pay_date\":\"\",\"zyzje\":\"62.75\",\"sbzfje\":\"28.24\",\"zhzfje\":\"0\",\"bfxmzfje\":\"0\",\"qfje\":\"0\",\"grzfje1\":\"0\",\"grzfje2\":\"34.51\",\"grzfje3\":\"34.51\",\"cxzfje\":\"0\",\"yyfdje\":\"0\",\"cash_pay_com\":\"34.51\",\"acct_pay_com\":\"0\",\"cash_pay_own\":\"0\",\"acct_pay_own\":\"0\"}";
+            var payInfo = JsonHelper.Deserialize<PayInfo>(s);
+            payInfo.SaveToHis("2016121992997", 9,"CR",ref errorMsg);
+
         }
     }
 }

@@ -42,6 +42,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.6.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.6\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -51,6 +55,7 @@
       <HintPath>..\..\CrHgWcfService\CrHgWcfService\Libraries\Oracle.ManagedDataAccess.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.ServiceModel.Activation" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -80,6 +85,7 @@
   <ItemGroup>
     <Compile Include="Common\Database.cs" />
     <Compile Include="Common\MedicareClient.cs" />
+    <Compile Include="CustomServiceHostFactory.cs" />
     <Compile Include="Model\BaseInfo.cs" />
     <Compile Include="Model\BizInfo.cs" />
     <Compile Include="Model\ClinicApplyInfo.cs" />
@@ -106,6 +112,8 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="packages.config" />
+    <None Include="Properties\PublishProfiles\7.6.pubxml" />
     <None Include="Properties\PublishProfiles\9.3.pubxml" />
   </ItemGroup>
   <PropertyGroup>

@@ -1,1 +1,1 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="CrHgWcfService.CrHgService" CodeBehind="CrHgService.svc.cs" %>
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="CrHgWcfService.CrHgService" Factory="CrHgWcfService.CustomServiceHostFactory" CodeBehind="CrHgService.svc.cs" %>

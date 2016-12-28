@@ -189,12 +189,14 @@ namespace CrHgWcfService.Model
         /// </summary>
         /// <param name="registerId"></param>
         /// <param name="regInfo"></param>
-        public static RegisterInfo GetInfoFromHis(string registerId, RegisterInfo regInfo = null)
+        public static bool GetInfoFromHis(string registerId, ref RegisterInfo refRegInfo, RegisterInfo regInfo = null)
         {
             //, new RegisterInfo() { serial_no = "0060101612146557" }
             //defaultInfo = defaultInfo ?? new RegisterInfo();
             regInfo = regInfo ?? new RegisterInfo();
             regInfo.recipe_no = registerId;
+            refRegInfo = regInfo;
+
 
             var resultCode = string.Empty;//错误代码
             var resultMessage = string.Empty;//错误描述
@@ -224,15 +226,15 @@ namespace CrHgWcfService.Model
 
             Database.RunProcRetNone("patientInterface.getPatientRegisterInfo", ref array);
 
-            if (array[1].Value.ToString() != "0") return regInfo;
-            regInfo.patient_id = param3.Value.ToString();
-            regInfo.in_disease = param4.Value.ToString();
-            regInfo.diagnose = param4.Value.ToString();
-            regInfo.icd = param4.Value.ToString();
-            regInfo.disease = param5.Value.ToString();
-            regInfo.in_dept = param6.Value.ToString();
-            regInfo.in_dept_name = param7.Value.ToString();
-            return regInfo;
+            if (array[1].Value.ToString() != "0") return false;
+            refRegInfo.patient_id = param3.Value.ToString();
+            refRegInfo.in_disease = param4.Value.ToString();
+            refRegInfo.diagnose = param4.Value.ToString();
+            refRegInfo.icd = param4.Value.ToString();
+            refRegInfo.disease = param5.Value.ToString();
+            refRegInfo.in_dept = param6.Value.ToString();
+            refRegInfo.in_dept_name = param7.Value.ToString();
+            return true;
         }
 
 
@@ -246,7 +248,7 @@ namespace CrHgWcfService.Model
             regInfo.icd = bizInfo.in_disease;
             regInfo.disease = bizInfo.disease;
             regInfo.in_dept = bizInfo.in_dept;
-            regInfo.in_dept_name =bizInfo.in_dept_name;
+            regInfo.in_dept_name = bizInfo.in_dept_name;
             return regInfo;
         }
 
