@@ -321,7 +321,7 @@ namespace WindowsFormsApplication1
 
             foreach (var t in infos)
             {
-                var a = new CrHgService().Unregister(t.serial_no,"", "CR", "CR");
+                var a = new CrHgService().Unregister(t.serial_no,"", "CR", "CR","");
                 AppendText(a);
             }
         }

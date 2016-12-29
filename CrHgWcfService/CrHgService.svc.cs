@@ -30,14 +30,9 @@
 
 #endregion
 
-using System;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Xml;
 using CrHgWcfService.Common;
 using CrHgWcfService.Model;
 using log4net;
-using Newtonsoft.Json;
 
 // ReSharper disable InconsistentNaming
 
@@ -57,16 +52,10 @@ namespace CrHgWcfService
         /// </summary>
         /// <param name="name">姓名</param>
         /// <param name="idNum">身份证号</param>
+        /// <param name="str"></param>
         /// <returns>方法调用结果</returns>
-        public string GetPersonInfoByIdNum(string name, string idNum)
+        private string GetPersonInfoByIdNum(string name, string idNum, string str)
         {
-            //var context = OperationContext.Current.RequestContext.RequestMessage.ToString();
-            //ar doc = new XmlDocument();
-            //doc.LoadXml(context);
-            //var json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
-            //var logger = LogManager.GetLogger("errorMsg");
-            //logger.Error();
-
             //进行登录业务
             if (!client.Login())
                 return Json(new
@@ -81,6 +70,22 @@ namespace CrHgWcfService
             //序列化查询信息并返回
             return Json(obj);
         }
+        public string GetPersonInfoByIdNum(string name, string idNum)
+        {
+            var logger = LogManager.GetLogger("GetPersonInfoByIdNum");
+            logger.Info(Json(new
+            {
+                name = name,
+                idNum = idNum
+            }));
+
+            var retJson = GetPersonInfoByIdNum(name, idNum, "");
+
+            var retLogger = LogManager.GetLogger("Return");
+            retLogger.Info(retJson);
+            return retJson;
+        }
+
 
         /// <summary>
         /// 挂号收费
@@ -90,8 +95,9 @@ namespace CrHgWcfService
         /// <param name="totalAmt">总金额</param>
         /// <param name="operNo"></param>
         /// <param name="opertor"></param>
+        /// <param name="str"></param>
         /// <returns>方法调用结果</returns>
-        public string Registration(string idNum, string registerId, string totalAmt, string operNo, string opertor)
+        private string Registration(string idNum, string registerId, string totalAmt, string operNo, string opertor, string str)
         {
             //进行登录业务
             if (!client.Login())
@@ -155,7 +161,7 @@ namespace CrHgWcfService
             var bizNo = string.Empty;
             //获得处方药品明细
             var feeInfos = new FeeInfo[1];
-            if(!FeeInfo.GetFeeInfoFromHis(registerId, totalAmt,ref feeInfos, ref errorMsg))
+            if (!FeeInfo.GetFeeInfoFromHis(registerId, totalAmt, ref feeInfos, ref errorMsg))
                 return Json(new
                 {
                     StatusCode = -1,
@@ -199,6 +205,24 @@ namespace CrHgWcfService
                 ResultMessage = $"挂号成功但收费失败,取消挂号失败:{errorMsg}"
             });
         }
+        public string Registration(string idNum, string registerId, string totalAmt, string operNo, string opertor)
+        {
+            var logger = LogManager.GetLogger("Registration");
+            logger.Info(Json(new
+            {
+                idNum = idNum,
+                registerId = registerId,
+                totalAmt = totalAmt,
+                openNo = operNo,
+                opertor = opertor
+            }));
+
+            var retJson = Registration(idNum, registerId, totalAmt, operNo, opertor, "");
+
+            var retLogger = LogManager.GetLogger("Return");
+            retLogger.Error(retJson);
+            return retJson;
+        }
 
         /// <summary>
         /// 退费并取消挂号
@@ -207,8 +231,9 @@ namespace CrHgWcfService
         /// <param name="registerId">处方号</param>
         /// <param name="operNo"></param>
         /// <param name="opertor"></param>
+        /// <param name="str"></param>
         /// <returns></returns>
-        public string Unregister(string serialNo, string registerId, string operNo, string opertor)
+        public string Unregister(string serialNo, string registerId, string operNo, string opertor, string str)
         {
             //进行登录业务
             if (!client.Login())
@@ -239,13 +264,30 @@ namespace CrHgWcfService
                 return Json(new
                 {
                     StatusCode = -1,
-                    ResultMessage = $"数据库访问失败，取消挂号失败，数据库错误信息{sqlErrorMsg}，请重试！"
+                    ResultMessage = $"数据库访问失败，取消挂号失败，错误信息，请重试:{sqlErrorMsg + "\t" + errorMsg}"
                 });
             return Json(new
             {
                 StatusCode = -1,
-                ResultMessage = $"数据库访问失败，已取消挂号，数据库错误信息{sqlErrorMsg}"
+                ResultMessage = $"数据库访问失败，已取消挂号，错误信息:{sqlErrorMsg}"
             });
+        }
+        public string Unregister(string serialNo, string registerId, string operNo, string opertor)
+        {
+            var logger = LogManager.GetLogger("Unregister");
+            logger.Info(Json(new
+            {
+                serialNo = serialNo,
+                registerId = registerId,
+                openNo = operNo,
+                opertor = opertor
+            }));
+
+            var retJson = Unregister(serialNo, registerId, operNo, opertor, "");
+
+            var retLogger = LogManager.GetLogger("Return");
+            retLogger.Error(retJson);
+            return retJson;
         }
 
         /// <summary>
@@ -254,8 +296,11 @@ namespace CrHgWcfService
         /// <param name="idNum"></param>
         /// <param name="registerId"></param>
         /// <param name="totalAmt"></param>
+        /// <param name="operNo"></param>
+        /// <param name="opertor"></param>
+        /// <param name="str"></param>
         /// <returns></returns>
-        public string TrialBalance(string idNum, string registerId, string totalAmt, string operNo, string opertor)
+        private string TrialBalance(string idNum, string registerId, string totalAmt, string operNo, string opertor, string str)
         {
             //进行登录业务
             if (!client.Login())
@@ -349,8 +394,27 @@ namespace CrHgWcfService
                 ResultMessage = $"挂号成功但试算失败,取消挂号失败:{ errorMsg }"
             });
         }
+        public string TrialBalance(string idNum, string registerId, string totalAmt, string operNo, string opertor)
+        {
+            var logger = LogManager.GetLogger("TrialBalance");
+            logger.Info(Json(new
+            {
+                idNum = idNum,
+                registerId = registerId,
+                totalAmt = totalAmt,
+                openNo = operNo,
+                opertor = opertor
+            }));
+
+            var retJson = TrialBalance(idNum, registerId, totalAmt, operNo, opertor, "");
+
+            var retLogger = LogManager.GetLogger("Return");
+            retLogger.Error(retJson);
+            return retJson;
+        }
 
 
         private static string Json(object obj) => JsonHelper.Serialize(obj);
+        
     }
 }

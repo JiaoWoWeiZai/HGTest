@@ -1,0 +1,8 @@
+
+----------------------header--------------------------
+2016-12-29 11:26:40,909 [47] INFO  GetPersonInfoByIdNum - {"name":"邵玮","idNum":"14222719940916003X"}
+2016-12-29 11:26:41,072 [47] INFO  Return - {"StatusCode":-1,"ResultMessage":"无法获取人员基本信息"}
+2016-12-29 11:27:01,013 [1] INFO  GetPersonInfoByIdNum - {"name":"sw","idNum":"14222719940916003X"}
+2016-12-29 11:27:01,150 [1] INFO  Return - {"StatusCode":-1,"ResultMessage":"无法获取人员基本信息"}
+
+----------------------footer--------------------------
